@@ -1,0 +1,6 @@
+{
+  "name": "Quantum-Inspired Irrigation & Water Allocation",
+  "description": "Intelligent decision-support system optimizing agricultural water allocation and irrigation scheduling across Krishna-Godavari command areas using quantum-inspired QUBO optimization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
