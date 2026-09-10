@@ -187,3 +187,73 @@ export interface AnalyticsData {
   quboConvergence: Array<{ iteration: number; energy: number; quantumFluctuation: number }>;
   quboMatrixSummary: any;
 }
+
+export type DatasetSegmentId = 'all' | 'zone-a-krishna' | 'zone-b-godavari' | 'zone-c-guntur';
+
+export interface DatasetSegment {
+  id: DatasetSegmentId;
+  name: string;
+  zone: string;
+  district?: string;
+  fieldIds: string[];
+  canalIds: string[];
+  resourceIds: string[];
+  pumpIds: string[];
+  weatherRegionKey: string;
+  soilType: string;
+  soilProfile?: string;
+  description: string;
+  coordinates: string;
+  primaryCrops: string[];
+  crops?: string[];
+  waterSource?: string;
+  keyTelemetryHighlight: string;
+}
+
+export interface DatasetExplorerData {
+  segments: DatasetSegment[];
+  datasetCounts: {
+    weatherStations: number;
+    faoCropProfiles: number;
+    soilHydraulicProfiles: number;
+    canalSegments: number;
+    barrages: number;
+    pumpSpecifications: number;
+    timeOfDayTariffs: number;
+    iotSensorObservations: number;
+  };
+  tables: {
+    faoCrops: any[];
+    soilProfiles: any[];
+    canals: any[];
+    barrages: any[];
+    pumps: any[];
+    tariffs: any[];
+    iotSensors: any[];
+  };
+  weatherRegions: Array<{
+    key: string;
+    latitude: number;
+    longitude: number;
+    elevation: number;
+    hourlyCount: number;
+    sampleHourly: {
+      times: string[];
+      temperatures: number[];
+      humidity: number[];
+      precipitationProb: number[];
+      et0: number[];
+      solarIrradiance: number[];
+    };
+  }>;
+}
+
+export interface HourlyWeatherPoint {
+  time: string;
+  temperatureC: number;
+  humidityPercent: number;
+  rainProbabilityPercent: number;
+  et0Mm: number;
+  solarIrradianceWm2: number;
+}
+

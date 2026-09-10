@@ -15,8 +15,9 @@ export async function fetchHealth() {
   return res.json();
 }
 
-export async function fetchFields(): Promise<Field[]> {
-  const res = await fetch('/api/fields');
+export async function fetchFields(segment?: string): Promise<Field[]> {
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/fields${query}`);
   if (!res.ok) throw new Error('Failed to fetch fields');
   return res.json();
 }
@@ -36,8 +37,9 @@ export async function deleteField(id: string): Promise<void> {
   if (!res.ok) throw new Error('Failed to delete field');
 }
 
-export async function fetchWaterResources(): Promise<WaterResource[]> {
-  const res = await fetch('/api/water-resources');
+export async function fetchWaterResources(segment?: string): Promise<WaterResource[]> {
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/water-resources${query}`);
   if (!res.ok) throw new Error('Failed to fetch water resources');
   return res.json();
 }
@@ -51,32 +53,37 @@ export async function updateWaterResource(id: string, updates: Partial<WaterReso
   if (!res.ok) throw new Error('Failed to update water resource');
 }
 
-export async function fetchCanals(): Promise<Canal[]> {
-  const res = await fetch('/api/canals');
+export async function fetchCanals(segment?: string): Promise<Canal[]> {
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/canals${query}`);
   if (!res.ok) throw new Error('Failed to fetch canals');
   return res.json();
 }
 
-export async function fetchPumps(): Promise<Pump[]> {
-  const res = await fetch('/api/pumps');
+export async function fetchPumps(segment?: string): Promise<Pump[]> {
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/pumps${query}`);
   if (!res.ok) throw new Error('Failed to fetch pumps');
   return res.json();
 }
 
-export async function fetchWeather(): Promise<Record<string, WeatherData>> {
-  const res = await fetch('/api/weather');
+export async function fetchWeather(segment?: string): Promise<Record<string, WeatherData>> {
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/weather${query}`);
   if (!res.ok) throw new Error('Failed to fetch weather');
   return res.json();
 }
 
-export async function fetchSoilData(): Promise<any[]> {
-  const res = await fetch('/api/soil-data');
+export async function fetchSoilData(segment?: string): Promise<any[]> {
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/soil-data${query}`);
   if (!res.ok) throw new Error('Failed to fetch soil data');
   return res.json();
 }
 
-export async function fetchDemandEstimation(): Promise<WaterDemandEstimation[]> {
-  const res = await fetch('/api/demand-estimation');
+export async function fetchDemandEstimation(segment?: string): Promise<WaterDemandEstimation[]> {
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/demand-estimation${query}`);
   if (!res.ok) throw new Error('Failed to fetch demand estimation');
   return res.json();
 }
@@ -87,6 +94,7 @@ export async function runOptimization(options: {
   cropDemandMultiplier?: number;
   canalCapacityMultiplier?: number;
   customIterations?: number;
+  segment?: string;
 } = {}): Promise<OptimizationResult> {
   const res = await fetch('/api/optimize', {
     method: 'POST',
@@ -97,13 +105,14 @@ export async function runOptimization(options: {
   return res.json();
 }
 
-export async function fetchSchedule(): Promise<{
+export async function fetchSchedule(segment?: string): Promise<{
   schedule: any[];
   baselineSchedule: any[];
   metrics: any;
   timestamp: string;
 }> {
-  const res = await fetch('/api/schedule');
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/schedule${query}`);
   if (!res.ok) throw new Error('Failed to fetch schedule');
   return res.json();
 }
@@ -114,6 +123,7 @@ export async function runSimulation(payload: {
   rainfallMultiplier?: number;
   cropDemandMultiplier?: number;
   canalCapacityMultiplier?: number;
+  segment?: string;
 }) {
   const res = await fetch('/api/simulate', {
     method: 'POST',
@@ -124,8 +134,9 @@ export async function runSimulation(payload: {
   return res.json();
 }
 
-export async function fetchAnalytics() {
-  const res = await fetch('/api/analytics');
+export async function fetchAnalytics(segment?: string) {
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/analytics${query}`);
   if (!res.ok) throw new Error('Failed to fetch analytics');
   return res.json();
 }
@@ -150,3 +161,30 @@ export async function resetDemoData(): Promise<any> {
   if (!res.ok) throw new Error('Failed to reset demo data');
   return res.json();
 }
+
+export async function fetchDatasetSegments() {
+  const res = await fetch('/api/datasets/segments');
+  if (!res.ok) throw new Error('Failed to fetch dataset segments');
+  return res.json();
+}
+
+export async function fetchDatasetExplorerData() {
+  const res = await fetch('/api/datasets/explorer');
+  if (!res.ok) throw new Error('Failed to fetch dataset explorer data');
+  return res.json();
+}
+
+export async function fetchDatasetTelemetry(segment?: string) {
+  const query = segment && segment !== 'all' ? `?segment=${segment}` : '';
+  const res = await fetch(`/api/datasets/telemetry${query}`);
+  if (!res.ok) throw new Error('Failed to fetch dataset telemetry');
+  return res.json();
+}
+
+export async function fetchWeatherTimeseries(zoneKey?: string) {
+  const query = zoneKey ? `?zone=${zoneKey}` : '';
+  const res = await fetch(`/api/datasets/weather-timeseries${query}`);
+  if (!res.ok) throw new Error('Failed to fetch weather timeseries');
+  return res.json();
+}
+

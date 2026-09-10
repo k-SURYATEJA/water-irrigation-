@@ -78,6 +78,7 @@ class OptimizationRequest(BaseModel):
     cropDemandMultiplier: Optional[float] = 1.0
     canalCapacityMultiplier: Optional[float] = 1.0
     customIterations: Optional[int] = 200
+    segment: Optional[str] = None
 
 class SimulationRequest(BaseModel):
     scenarioName: Optional[str] = "Custom"
@@ -85,6 +86,7 @@ class SimulationRequest(BaseModel):
     rainfallMultiplier: Optional[float] = 1.0
     cropDemandMultiplier: Optional[float] = 1.0
     canalCapacityMultiplier: Optional[float] = 1.0
+    segment: Optional[str] = None
 
 class FieldCreateOrUpdate(BaseModel):
     id: Optional[str] = None

@@ -4,9 +4,9 @@ import {
   TrendingDown,
   Droplets,
   Zap,
-  Sprout,
-  ShieldCheck,
   Percent,
+  ShieldCheck,
+  Database,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -17,8 +17,6 @@ import {
   Tooltip,
   Legend,
   CartesianGrid,
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell,
@@ -27,6 +25,7 @@ import {
 } from 'recharts';
 import { OptimizationResult, Field, AnalyticsData } from '../types.js';
 import { fetchAnalytics } from '../services/api.js';
+import { useDataset } from '../context/DatasetContext.js';
 
 interface AnalyticsPageProps {
   optimizationResult: OptimizationResult | null;
@@ -37,20 +36,21 @@ const COLORS = ['#0284c7', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'
 
 export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
   optimizationResult,
-  fields,
+  fields: _fields,
 }) => {
+  const { currentSegmentId, currentSegment } = useDataset();
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
 
   useEffect(() => {
-    fetchAnalytics()
+    fetchAnalytics(currentSegmentId !== 'all' ? currentSegmentId : undefined)
       .then((data) => setAnalyticsData(data))
       .catch((err) => console.error('Failed to load dynamic analytics:', err));
-  }, [optimizationResult]);
+  }, [optimizationResult, currentSegmentId]);
 
   const metrics = analyticsData?.metrics || optimizationResult?.metrics;
   const schedule = optimizationResult?.schedule || [];
 
-  // 1. Dynamic 7-day trend from live command records
+  // 1. Dynamic 7-day trend
   const weeklyTrend = analyticsData?.sevenDayTrend || [
     { day: 'Mon', availableWater: 7200, demand: 6800, allocated: 6500, saved: 700 },
     { day: 'Tue', availableWater: 7000, demand: 6400, allocated: 6200, saved: 800 },
@@ -59,7 +59,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     { day: 'Fri', availableWater: 7200, demand: 6300, allocated: 5900, saved: 880 },
     { day: 'Sat', availableWater: 7500, demand: 6100, allocated: 5800, saved: 910 },
     {
-      day: 'Today (Opt)',
+      day: 'Today',
       availableWater: metrics?.totalAvailableWater || 12500,
       demand: metrics?.totalWaterDemand || 6200,
       allocated: metrics?.waterAllocated || 5000,
@@ -67,7 +67,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     },
   ];
 
-  // 2. Crop-wise volumetric allocation from live QUBO solver
+  // 2. Crop-wise allocation
   const cropData = analyticsData?.cropAllocation
     ? analyticsData.cropAllocation.map((c) => ({ name: c.crop, value: c.allocatedLiters }))
     : (() => {
@@ -80,7 +80,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         return Object.keys(cropWaterMap).map((c) => ({ name: c, value: cropWaterMap[c] }));
       })();
 
-  // 3. Field-wise baseline vs optimized comparison
+  // 3. Field-wise baseline vs optimized
   const fieldComparison = analyticsData?.fieldAllocationComparison || schedule.map((s) => ({
     fieldId: s.fieldId,
     crop: s.crop,
@@ -90,130 +90,122 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     decision: s.decision,
   }));
 
-  // 4. Energy cost comparison across time slots
+  // 4. Energy cost per slot
   const hourlyEnergyData = [
-    { hour: '06:00 - 08:00', Baseline: 64, Optimized: 12, Source: 'Solar Preferred (₹0 grid power)' },
-    { hour: '08:00 - 10:00', Baseline: 64, Optimized: 24, Source: 'Solar / Low Grid' },
-    { hour: '10:00 - 12:00', Baseline: 80, Optimized: 32, Source: 'Grid Off-Peak' },
-    { hour: '16:00 - 18:00', Baseline: 64, Optimized: 28, Source: 'Evening Dispatch' },
+    { hour: '06:00 - 08:00', Baseline: 64, Optimized: 12 },
+    { hour: '08:00 - 10:00', Baseline: 64, Optimized: 24 },
+    { hour: '10:00 - 12:00', Baseline: 80, Optimized: 32 },
+    { hour: '16:00 - 18:00', Baseline: 64, Optimized: 28 },
   ];
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* Page Header */}
-      <div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-cyan-600" />
-          Hydraulic &amp; Energy Analytics Dashboard
-        </h2>
-        <p className="text-xs text-slate-500">
-          Live empirical KPIs validating water savings, grid energy displacement, and volumetric crop distribution across Krishna-Godavari command zones.
-        </p>
+    <div className="p-6 space-y-5 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-cyan-600" />
+            Hydraulic &amp; Energy Analytics Dashboard
+          </h2>
+          <p className="text-xs text-slate-500">
+            Empirical validation of water conservation, electricity reduction, and crop moisture distribution across {currentSegment.name}.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 text-xs">
+          <Database className="w-3.5 h-3.5 text-blue-600" />
+          <span className="font-semibold text-slate-700">{currentSegment.name}</span>
+        </div>
       </div>
 
-      {/* Summary Scorecard */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="text-xs font-semibold uppercase text-slate-400">Irrigation Efficiency</div>
-          <div className="text-2xl font-bold text-emerald-600 mt-1 flex items-center gap-1">
-            <Percent className="w-5 h-5" />
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div className="text-[11px] font-semibold uppercase text-slate-500">Irrigation Efficiency</div>
+          <div className="text-xl font-bold text-emerald-600 mt-1 flex items-center gap-1">
+            <Percent className="w-4 h-4" />
             {metrics?.irrigationEfficiencyPercent || 94}%
           </div>
-          <div className="text-[11px] text-slate-400 mt-1">Beneficial Crop Transpiration</div>
+          <div className="text-[10px] text-slate-400 mt-0.5">Beneficial Transpiration</div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="text-xs font-semibold uppercase text-slate-400">Water Conserved Today</div>
-          <div className="text-2xl font-bold text-cyan-700 mt-1 flex items-center gap-1">
-            <Droplets className="w-5 h-5 text-cyan-600" />
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div className="text-[11px] font-semibold uppercase text-slate-500">Water Conserved Today</div>
+          <div className="text-xl font-bold text-cyan-700 mt-1 flex items-center gap-1">
+            <Droplets className="w-4 h-4 text-cyan-600" />
             +{(metrics?.estimatedWaterSaved || 850).toLocaleString()} L
           </div>
-          <div className="text-[11px] text-emerald-600 mt-1">vs Static Canal Rotation</div>
+          <div className="text-[10px] text-emerald-600 mt-0.5">vs Static Rotation</div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="text-xs font-semibold uppercase text-slate-400">Pumping Cost Reduction</div>
-          <div className="text-2xl font-bold text-purple-700 mt-1 flex items-center gap-1">
-            <TrendingDown className="w-5 h-5 text-purple-600" />
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div className="text-[11px] font-semibold uppercase text-slate-500">Power Bill Reduction</div>
+          <div className="text-xl font-bold text-purple-700 mt-1 flex items-center gap-1">
+            <TrendingDown className="w-4 h-4 text-purple-600" />
             -{metrics?.costSavingsPercent || 35}%
           </div>
-          <div className="text-[11px] text-slate-400 mt-1">Solar Schedule Shift</div>
+          <div className="text-[10px] text-slate-400 mt-0.5">Solar Hours Scheduled</div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="text-xs font-semibold uppercase text-slate-400">High-Priority Satisfaction</div>
-          <div className="text-2xl font-bold text-slate-800 mt-1 flex items-center gap-1">
-            <ShieldCheck className="w-5 h-5 text-emerald-500" />
+        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div className="text-[11px] font-semibold uppercase text-slate-500">Constraint Adherence</div>
+          <div className="text-xl font-bold text-slate-800 mt-1 flex items-center gap-1">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
             100%
           </div>
-          <div className="text-[11px] text-emerald-600 mt-1">Zero Sensitive Crop Stressed</div>
+          <div className="text-[10px] text-emerald-600 mt-0.5">Zero Pipe Conflicts</div>
         </div>
       </div>
 
-      {/* Analytics Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart 1: 7-Day Command Water Balance Trend */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+      {/* Row 1: 7-Day Area Chart + Crop Pie */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* 7-Day Area Chart */}
+        <div className="lg:col-span-2 bg-white rounded-xl p-4 border border-slate-200 shadow-xs space-y-3">
           <div className="flex justify-between items-center">
             <div>
-              <h4 className="font-bold text-slate-800 text-sm">7-Day Command Area Water Balance (Liters)</h4>
-              <p className="text-xs text-slate-400">Comparing available storage vs crop demand vs optimized release.</p>
+              <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wide">
+                7-Day Command Water Balance Trend (Liters)
+              </h4>
+              <p className="text-[11px] text-slate-400">Demand vs actual optimized release over time</p>
             </div>
-            <span className="text-xs text-emerald-600 font-semibold font-mono">Real-Time Data</span>
+            <span className="text-xs text-cyan-600 font-mono font-semibold">Live Telemetry</span>
           </div>
-          <div className="h-64">
+
+          <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={weeklyTrend}>
+                <defs>
+                  <linearGradient id="colorDemand" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
+                  </linearGradient>
+                  <linearGradient id="colorAllocated" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0284c7" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#0284c7" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="day" stroke="#94a3b8" fontSize={11} />
                 <YAxis stroke="#94a3b8" fontSize={11} />
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff' }} />
-                <Legend />
-                <Area type="monotone" dataKey="demand" stroke="#f59e0b" fill="#fef3c7" strokeWidth={2} name="Crop Demand (L)" />
-                <Area type="monotone" dataKey="allocated" stroke="#0284c7" fill="#e0f2fe" strokeWidth={2.5} name="Optimized Released (L)" />
+                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff', fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Area type="monotone" dataKey="demand" stroke="#f59e0b" fill="url(#colorDemand)" strokeWidth={2} name="Crop Demand (L)" />
+                <Area type="monotone" dataKey="allocated" stroke="#0284c7" fill="url(#colorAllocated)" strokeWidth={2.5} name="Optimized Released (L)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Chart 2: Hourly Pumping Tariff: Baseline vs QUBO */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
-          <div className="flex justify-between items-center">
-            <div>
-              <h4 className="font-bold text-slate-800 text-sm">Pumping Energy Cost per Slot: Baseline vs QUBO (₹)</h4>
-              <p className="text-xs text-slate-400">Capitalizing on early-morning solar pump windows.</p>
-            </div>
-            <span className="text-xs text-purple-600 font-semibold font-mono">
-              -₹{(metrics?.baselineOperatingCost || 148) - (metrics?.estimatedOperatingCost || 96)} Saved
-            </span>
+        {/* Crop Donut */}
+        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs space-y-3">
+          <div>
+            <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wide">
+              Crop Water Distribution
+            </h4>
+            <p className="text-[11px] text-slate-400">Share of water across crop varieties</p>
           </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={hourlyEnergyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="hour" stroke="#94a3b8" fontSize={11} />
-                <YAxis stroke="#94a3b8" fontSize={11} />
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff' }} />
-                <Legend />
-                <Bar dataKey="Baseline" fill="#cbd5e1" radius={[4, 4, 0, 0]} name="Baseline Fixed Cost (₹)" />
-                <Bar dataKey="Optimized" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="QUBO Optimized Cost (₹)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
 
-        {/* Chart 3: Crop Volumetric Distribution */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
-          <div className="flex justify-between items-center">
-            <div>
-              <h4 className="font-bold text-slate-800 text-sm">Crop-Wise Volumetric Allocation Breakdown</h4>
-              <p className="text-xs text-slate-400">Volume allocated per crop species based on growth sensitivity.</p>
-            </div>
-            <span className="text-xs text-slate-500 font-mono">
-              Total: {(metrics?.waterAllocated || 5000).toLocaleString()} L
-            </span>
-          </div>
-          <div className="h-64 flex items-center justify-center">
+          <div className="h-56 flex items-center justify-center">
             {cropData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -221,47 +213,77 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
                     data={cropData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={55}
-                    outerRadius={85}
-                    paddingAngle={4}
+                    innerRadius={45}
+                    outerRadius={75}
+                    paddingAngle={3}
                     dataKey="value"
-                    label={({ name, value }: any) => `${name}: ${value}L`}
+                    label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                     labelLine={false}
                   >
                     {cropData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff', fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-xs text-slate-400">No active irrigation scheduled</div>
+              <div className="text-xs text-slate-400 italic">No crop water data</div>
             )}
           </div>
         </div>
+      </div>
 
-        {/* Chart 4: Field-wise Baseline vs Optimized Comparison */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+      {/* Row 2: Field Comparison Bar + Energy per Slot */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Field Comparison Bar */}
+        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs space-y-3">
           <div className="flex justify-between items-center">
             <div>
-              <h4 className="font-bold text-slate-800 text-sm">Field-by-Field Water Savings vs Baseline (L)</h4>
-              <p className="text-xs text-slate-400">Measuring conservation achieved for each parcel.</p>
+              <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wide">
+                Field Allocation: Baseline vs Optimized (L)
+              </h4>
+              <p className="text-[11px] text-slate-400">Comparing unmanaged rotation vs QUBO</p>
             </div>
-            <span className="text-xs text-cyan-600 font-semibold font-mono">
-              +{metrics?.estimatedWaterSaved || 850} L Net Conserved
-            </span>
           </div>
-          <div className="h-64">
+          <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={fieldComparison}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="fieldId" stroke="#94a3b8" fontSize={11} />
                 <YAxis stroke="#94a3b8" fontSize={11} />
-                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff' }} />
-                <Legend />
-                <Bar dataKey="baselineWater" fill="#94a3b8" radius={[4, 4, 0, 0]} name="Baseline Volume (L)" />
-                <Bar dataKey="optimizedWater" fill="#0284c7" radius={[4, 4, 0, 0]} name="QUBO Volume (L)" />
+                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff', fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="baselineWater" fill="#cbd5e1" radius={[4, 4, 0, 0]} name="Baseline (L)" />
+                <Bar dataKey="optimizedWater" fill="#0d9488" radius={[4, 4, 0, 0]} name="QUBO Optimized (L)" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Hourly Energy Cost */}
+        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-xs space-y-3">
+          <div className="flex justify-between items-center">
+            <div>
+              <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wide">
+                Pumping Energy Cost per Slot (?)
+              </h4>
+              <p className="text-[11px] text-slate-400">Cost savings achieved by prioritizing solar slots</p>
+            </div>
+            <span className="text-xs text-purple-700 font-mono font-bold">
+              -?{(metrics?.baselineOperatingCost || 148) - (metrics?.estimatedOperatingCost || 96)} Saved
+            </span>
+          </div>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={hourlyEnergyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="hour" stroke="#94a3b8" fontSize={11} />
+                <YAxis stroke="#94a3b8" fontSize={11} />
+                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', color: '#fff', fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="Baseline" fill="#cbd5e1" radius={[4, 4, 0, 0]} name="Fixed Rotation (?)" />
+                <Bar dataKey="Optimized" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="QUBO (?)" />
               </BarChart>
             </ResponsiveContainer>
           </div>

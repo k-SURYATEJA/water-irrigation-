@@ -6,11 +6,13 @@ import { OptimizationModal } from './components/OptimizationModal.js';
 import { HowItWorksModal } from './components/HowItWorksModal.js';
 import { GlossaryModal } from './components/GlossaryModal.js';
 import { ViewModeProvider } from './context/ViewModeContext.js';
+import { DatasetProvider, useDataset } from './context/DatasetContext.js';
 
 import { DashboardPage } from './pages/DashboardPage.js';
 import { FieldsCropsPage } from './pages/FieldsCropsPage.js';
 import { WaterResourcesPage } from './pages/WaterResourcesPage.js';
 import { WeatherSoilPage } from './pages/WeatherSoilPage.js';
+import { DatasetsPage } from './pages/DatasetsPage.js';
 import { OptimizationPage } from './pages/OptimizationPage.js';
 import { SchedulePage } from './pages/SchedulePage.js';
 import { WhatIfSimulationPage } from './pages/WhatIfSimulationPage.js';
@@ -47,6 +49,7 @@ import {
 } from './types.js';
 
 const AppContent: React.FC = () => {
+  const { currentSegmentId } = useDataset();
   const [currentSection, setCurrentSection] = useState<NavSection>('dashboard');
   const [fields, setFields] = useState<Field[]>([]);
   const [waterResources, setWaterResources] = useState<WaterResource[]>([]);
@@ -77,17 +80,18 @@ const AppContent: React.FC = () => {
 
   const systemStatus = computeSystemStatus();
 
-  // Load Initial Data
-  const loadAllData = async () => {
+  // Load Data for active segment
+  const loadAllData = async (segId?: string) => {
     try {
       setLoading(true);
+      const targetSegment = segId !== undefined ? segId : currentSegmentId;
       const [f, wr, c, p, w, d, a] = await Promise.all([
-        fetchFields(),
-        fetchWaterResources(),
-        fetchCanals(),
-        fetchPumps(),
-        fetchWeather(),
-        fetchDemandEstimation(),
+        fetchFields(targetSegment),
+        fetchWaterResources(targetSegment),
+        fetchCanals(targetSegment),
+        fetchPumps(targetSegment),
+        fetchWeather(targetSegment),
+        fetchDemandEstimation(targetSegment),
         fetchAlerts(),
       ]);
 
@@ -99,26 +103,26 @@ const AppContent: React.FC = () => {
       setDemands(d);
       setAlerts(a);
 
-      // Run initial optimization if none exists
-      const opt = await runOptimization();
+      // Run optimization calibrated specifically to this segment
+      const opt = await runOptimization({ segment: targetSegment });
       setOptimizationResult(opt);
     } catch (err) {
-      console.error('Failed to load initial data:', err);
+      console.error('Failed to load segment data:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadAllData();
-  }, []);
+    loadAllData(currentSegmentId);
+  }, [currentSegmentId]);
 
   // Handler: Run Quantum Optimization
   const handleRunOptimization = async (options: any = {}) => {
     setIsOptimizing(true);
     setIsOptModalOpen(true);
     try {
-      const res = await runOptimization(options);
+      const res = await runOptimization({ segment: currentSegmentId, ...options });
       setOptimizationResult(res);
       // Reload alerts in case any changed
       const a = await fetchAlerts();
@@ -133,10 +137,10 @@ const AppContent: React.FC = () => {
   // Handler: Save Field
   const handleSaveField = async (field: Field) => {
     await saveField(field);
-    const updated = await fetchFields();
+    const updated = await fetchFields(currentSegmentId);
     setFields(updated);
     // Re-run optimization with new field
-    const opt = await runOptimization();
+    const opt = await runOptimization({ segment: currentSegmentId });
     setOptimizationResult(opt);
   };
 
@@ -144,9 +148,9 @@ const AppContent: React.FC = () => {
   const handleDeleteField = async (id: string) => {
     if (confirm(`Are you sure you want to delete field ${id}?`)) {
       await deleteField(id);
-      const updated = await fetchFields();
+      const updated = await fetchFields(currentSegmentId);
       setFields(updated);
-      const opt = await runOptimization();
+      const opt = await runOptimization({ segment: currentSegmentId });
       setOptimizationResult(opt);
     }
   };
@@ -162,7 +166,7 @@ const AppContent: React.FC = () => {
   const handleResetData = async () => {
     if (confirm('Reset demo data to original seed values?')) {
       await resetDemoData();
-      await loadAllData();
+      await loadAllData(currentSegmentId);
     }
   };
 
@@ -203,6 +207,8 @@ const AppContent: React.FC = () => {
         return 'Water Resources & Conveyance';
       case 'weather':
         return 'Weather & Soil Hydrology';
+      case 'datasets':
+        return 'Dataset Segmentation & Telemetry Hub';
       case 'optimization':
         return 'Quantum-Inspired QUBO Engine';
       case 'schedule':
@@ -298,6 +304,8 @@ const AppContent: React.FC = () => {
                 />
               )}
 
+              {currentSection === 'datasets' && <DatasetsPage />}
+
               {currentSection === 'optimization' && (
                 <OptimizationPage
                   optimizationResult={optimizationResult}
@@ -371,9 +379,11 @@ const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <ViewModeProvider>
-      <AppContent />
-    </ViewModeProvider>
+    <DatasetProvider>
+      <ViewModeProvider>
+        <AppContent />
+      </ViewModeProvider>
+    </DatasetProvider>
   );
 };
 

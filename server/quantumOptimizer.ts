@@ -12,6 +12,7 @@ import {
   IrrigationDecision,
 } from '../src/types.js';
 import { estimateWaterDemand } from './demandEstimator.js';
+import { DATASET_SEGMENTS } from './datasetService.js';
 
 export interface OptimizationOptions {
   availableWaterOverride?: number;
@@ -19,6 +20,7 @@ export interface OptimizationOptions {
   cropDemandMultiplier?: number;
   canalCapacityMultiplier?: number;
   customIterations?: number;
+  segment?: string;
 }
 
 const TIME_SLOTS = [
@@ -27,6 +29,13 @@ const TIME_SLOTS = [
   { id: 'S3', label: '10:00 - 12:00', costMultiplier: 1.3, name: 'Late Morning (Moderate Evaporative Loss)' },
   { id: 'S4', label: '16:00 - 18:00', costMultiplier: 1.1, name: 'Evening Twilight (Low Evaporation)' },
 ];
+
+const SOIL_HYDRAULICS: Record<string, { fc: number; pwp: number; awc: number }> = {
+  'Red Sandy': { fc: 22, pwp: 8.5, awc: 135 },
+  'Clay Loam': { fc: 32, pwp: 16.0, awc: 160 },
+  'Black Cotton': { fc: 42, pwp: 22.0, awc: 200 },
+  'Alluvial': { fc: 28, pwp: 12.0, awc: 160 },
+};
 
 export function runQuantumOptimization(
   fields: Field[],
@@ -38,12 +47,27 @@ export function runQuantumOptimization(
 ): OptimizationResult {
   const startTime = Date.now();
 
+  let activeFields = fields;
+  let activeResources = resources;
+  let activeCanals = canals;
+  let activePumps = pumps;
+
+  if (options.segment && options.segment !== 'all') {
+    const seg = DATASET_SEGMENTS.find((s) => s.id === options.segment);
+    if (seg) {
+      activeFields = fields.filter((f) => seg.fieldIds.includes(f.id));
+      activeCanals = canals.filter((c) => seg.canalIds.includes(c.id));
+      activePumps = pumps.filter((p) => seg.pumpIds.includes(p.id));
+      activeResources = resources.filter((r) => seg.resourceIds.includes(r.id));
+    }
+  }
+
   const rainfallMultiplier = options.rainfallMultiplier ?? 1.0;
   const cropDemandMultiplier = options.cropDemandMultiplier ?? 1.0;
   const canalCapacityMultiplier = options.canalCapacityMultiplier ?? 1.0;
 
-  // 1. Calculate Demands for all fields
-  const demands: WaterDemandEstimation[] = fields.map((f) => {
+  // 1. Calculate Demands for all active fields
+  const demands: WaterDemandEstimation[] = activeFields.map((f) => {
     const w = weatherMap[f.id] || {
       fieldId: f.id,
       temperatureC: 32,
@@ -59,13 +83,13 @@ export function runQuantumOptimization(
   });
 
   // Calculate total available irrigation water across reservoirs
-  const totalAvailableRaw = resources.reduce((sum, r) => sum + r.availableIrrigationLiters, 0);
+  const totalAvailableRaw = activeResources.reduce((sum, r) => sum + r.availableIrrigationLiters, 0);
   const totalAvailableWater = options.availableWaterOverride ?? totalAvailableRaw;
   const totalWaterDemand = demands.reduce((sum, d) => sum + d.estimatedNeedLiters, 0);
 
   // 2. Formulate QUBO Matrix
   // Binary variables x(i, t) where i = 0..N-1 (fields) and t = 0..T-1 (time slots)
-  const N = fields.length;
+  const N = activeFields.length;
   const T = TIME_SLOTS.length;
   const totalVars = N * T;
 
@@ -78,6 +102,7 @@ export function runQuantumOptimization(
     LOW: 15,
   };
 
+
   // Penalties
   const LAMBDA_CONFLICT = 120; // single slot constraint
   const LAMBDA_WATER_BUDGET = 0.08; // quadratic budget penalty
@@ -88,12 +113,18 @@ export function runQuantumOptimization(
 
   // A. Linear & Quadratic terms for unmet demand & slot cost
   for (let i = 0; i < N; i++) {
-    const field = fields[i];
+    const field = activeFields[i];
     const demand = demands[i];
     const pWeight = priorityWeights[demand.priority];
     const waterAmt = demand.recommendedAmountLiters;
 
-    const pump = pumps.find((p) => p.id === field.pumpId) || pumps[0];
+    // Soil hydraulic moisture stress multiplier based on ISRIC soil profile
+    const soilHydr = SOIL_HYDRAULICS[field.soilType] || { fc: 30, pwp: 15, awc: 150 };
+    const rawBand = Math.max(1, soilHydr.fc - soilHydr.pwp);
+    const deficitMmEquivalent = Math.max(0, soilHydr.fc - field.currentSoilMoisture);
+    const stressMultiplier = Math.min(1.8, Math.max(0.8, deficitMmEquivalent / (rawBand * 0.5)));
+
+    const pump = activePumps.find((p) => p.id === field.pumpId) || activePumps[0] || pumps[0];
     const pumpCostPerHour = pump.operatingCostPerHour;
 
     for (let t = 0; t < T; t++) {
@@ -105,7 +136,7 @@ export function runQuantumOptimization(
 
       if (demand.recommendation === 'Irrigate') {
         // Satisfying high priority reduces energy: linear coefficient is negative
-        Q[idx][idx] += energyCost - pWeight * 1.5;
+        Q[idx][idx] += energyCost - (pWeight * 1.5 * stressMultiplier);
       } else if (demand.recommendation === 'Delay') {
         // Delay recommended: penalty for irrigating unnecessarily
         Q[idx][idx] += energyCost + 60;
@@ -129,9 +160,9 @@ export function runQuantumOptimization(
       if (Q[i][j] !== 0) {
         couplingCount++;
         if (sampleCouplings.length < 8) {
-          const f1 = fields[Math.floor(i / T)].id;
+          const f1 = activeFields[Math.floor(i / T)].id;
           const s1 = TIME_SLOTS[i % T].id;
-          const f2 = fields[Math.floor(j / T)].id;
+          const f2 = activeFields[Math.floor(j / T)].id;
           const s2 = TIME_SLOTS[j % T].id;
           sampleCouplings.push({
             q1: `x(${f1},${s1})`,
@@ -180,13 +211,13 @@ export function runQuantumOptimization(
 
     // Canal capacity penalty per slot (prevents concurrent overdrawing on shared canals)
     for (let t = 0; t < T; t++) {
-      for (const canal of canals) {
+      for (const canal of activeCanals) {
         const canalDailyCap = canal.capacityLitersPerDay * canalCapacityMultiplier;
         const slotCap = canalDailyCap * 0.88; // Slot capacity allows single field delivery but prevents concurrent bottleneck
         let canalSlotFlow = 0;
 
         for (let i = 0; i < N; i++) {
-          if (fields[i].canalId === canal.id && state[varIndex(i, t)] === 1) {
+          if (activeFields[i].canalId === canal.id && state[varIndex(i, t)] === 1) {
             canalSlotFlow += demands[i].recommendedAmountLiters;
           }
         }
@@ -199,8 +230,8 @@ export function runQuantumOptimization(
     }
 
     return energy;
-
   }
+
 
   const convergenceHistory: Array<{ iteration: number; energy: number; quantumFluctuation: number }> = [];
 
@@ -255,10 +286,10 @@ export function runQuantumOptimization(
   let totalOptimizedOperatingCost = 0;
 
   for (let i = 0; i < N; i++) {
-    const field = fields[i];
+    const field = activeFields[i];
     const demand = demands[i];
-    const canal = canals.find((c) => c.id === field.canalId) || canals[0];
-    const pump = pumps.find((p) => p.id === field.pumpId) || pumps[0];
+    const canal = activeCanals.find((c) => c.id === field.canalId) || activeCanals[0] || canals[0];
+    const pump = activePumps.find((p) => p.id === field.pumpId) || activePumps[0] || pumps[0];
 
     // Find assigned slot
     let assignedSlotIdx = -1;
@@ -322,15 +353,16 @@ export function runQuantumOptimization(
   let baselineAllocated = 0;
   let baselineCost = 0;
 
-  fields.forEach((f, idx) => {
+  activeFields.forEach((f, idx) => {
     const slot = TIME_SLOTS[idx % T];
-    const canal = canals.find((c) => c.id === f.canalId) || canals[0];
-    const pump = pumps.find((p) => p.id === f.pumpId) || pumps[0];
+    const canal = activeCanals.find((c) => c.id === f.canalId) || activeCanals[0] || canals[0];
+    const pump = activePumps.find((p) => p.id === f.pumpId) || activePumps[0] || pumps[0];
     const fixedWater = Math.round(f.areaHectares * 350); // rule of thumb 350L/ha fixed
     const cost = Math.round(2 * pump.operatingCostPerHour * 1.25); // peak/unoptimized run
 
     baselineAllocated += fixedWater;
     baselineCost += cost;
+
 
     baselineSchedule.push({
       id: `BASE-${f.id}`,

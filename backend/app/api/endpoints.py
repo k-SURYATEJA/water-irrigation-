@@ -5,7 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any, Optional
 import json
+import csv
 import time
+from pathlib import Path
 from datetime import datetime
 
 from ..database.db import get_db
@@ -25,6 +27,91 @@ router = APIRouter()
 
 latest_optimization_result: Optional[Dict[str, Any]] = None
 
+DATASETS_DIR = Path(__file__).resolve().parents[3] / "datasets"
+
+SEGMENT_FIELD_MAP = {
+    "zone-a-krishna": ["F1", "F3"],
+    "zone-b-godavari": ["F2", "F6"],
+    "zone-c-guntur": ["F4", "F5"],
+}
+SEGMENT_RESOURCE_MAP = {
+    "zone-a-krishna": ["R1"],
+    "zone-b-godavari": ["R2"],
+    "zone-c-guntur": ["R3"],
+}
+SEGMENT_CANAL_MAP = {
+    "zone-a-krishna": ["C1"],
+    "zone-b-godavari": ["C2"],
+    "zone-c-guntur": ["C3"],
+}
+SEGMENT_PUMP_MAP = {
+    "zone-a-krishna": ["P1"],
+    "zone-b-godavari": ["P2"],
+    "zone-c-guntur": ["P3"],
+}
+
+DATASET_SEGMENTS = [
+    {
+        "id": "all",
+        "name": "Unified Command Area (All Zones)",
+        "district": "Krishna & Godavari Basins",
+        "soilProfile": "Mixed Alluvial, Sandy Loam & Vertisol",
+        "crops": ["Paddy", "Cotton", "Maize", "Chilli", "Groundnut", "Tomato"],
+        "waterSource": "Prakasam Barrage, Sir Arthur Cotton Barrage & Krishna-Godavari Canal Network",
+        "coordinates": {"lat": 16.5062, "lng": 80.6480},
+        "fieldCount": 6,
+        "keyTelemetryHighlight": "Full multi-basin telemetry synchronization active",
+    },
+    {
+        "id": "zone-a-krishna",
+        "name": "Zone A: Krishna Delta North",
+        "district": "Krishna & NTR Districts",
+        "soilProfile": "Red Sandy Loam (Alfisol) - Rapid Drainage",
+        "crops": ["Tomato", "Groundnut"],
+        "waterSource": "Prakasam Barrage & Krishna Main Canal",
+        "coordinates": {"lat": 16.5062, "lng": 80.6480},
+        "fieldCount": 2,
+        "keyTelemetryHighlight": "Open-Meteo Vijayawada station: 37.5% FMCW moisture, 33.8°C soil temp",
+    },
+    {
+        "id": "zone-b-godavari",
+        "name": "Zone B: Godavari Lowlands",
+        "district": "East Godavari & Konaseema",
+        "soilProfile": "Clay Loam / Alluvial (Inceptisol) - High Water Retention",
+        "crops": ["Paddy", "Chillies"],
+        "waterSource": "Sir Arthur Cotton Barrage & Godavari Eastern Canal",
+        "coordinates": {"lat": 16.9891, "lng": 81.7840},
+        "fieldCount": 2,
+        "keyTelemetryHighlight": "Heavy monsoon inflow: 65% moisture, convective rain alert, high ET0",
+    },
+    {
+        "id": "zone-c-guntur",
+        "name": "Zone C: Guntur Uplands",
+        "district": "Guntur & Palnadu Districts",
+        "soilProfile": "Black Cotton Soil (Vertisol) - High Swell-Shrink",
+        "crops": ["Cotton", "Maize"],
+        "waterSource": "Western Distributary Link & Rayanapadu Distributary",
+        "coordinates": {"lat": 16.3067, "lng": 80.4365},
+        "fieldCount": 2,
+        "keyTelemetryHighlight": "High moisture deficit: 22% moisture, 36.2°C ambient, peak daytime solar tariff",
+    },
+]
+
+def load_csv(rel_path: str) -> List[Dict[str, Any]]:
+    p = DATASETS_DIR / rel_path
+    if not p.exists():
+        return []
+    with open(p, mode="r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        return list(reader)
+
+def load_json(rel_path: str) -> Any:
+    p = DATASETS_DIR / rel_path
+    if not p.exists():
+        return {}
+    with open(p, mode="r", encoding="utf-8") as f:
+        return json.load(f)
+
 def model_to_dict(obj: Any) -> Dict[str, Any]:
     if hasattr(obj, "__dict__"):
         d = dict(obj.__dict__)
@@ -34,11 +121,27 @@ def model_to_dict(obj: Any) -> Dict[str, Any]:
 
 def execute_optimization(req: OptimizationRequest, db: Session) -> Dict[str, Any]:
     start_time = time.time()
-    fields = [model_to_dict(f) for f in db.query(FieldModel).all()]
-    resources = [model_to_dict(r) for r in db.query(WaterResourceModel).all()]
-    canals = [model_to_dict(c) for c in db.query(CanalModel).all()]
-    pumps = [model_to_dict(p) for p in db.query(PumpModel).all()]
+    all_fields = [model_to_dict(f) for f in db.query(FieldModel).all()]
+    all_resources = [model_to_dict(r) for r in db.query(WaterResourceModel).all()]
+    all_canals = [model_to_dict(c) for c in db.query(CanalModel).all()]
+    all_pumps = [model_to_dict(p) for p in db.query(PumpModel).all()]
     weather_map = {w.fieldId: model_to_dict(w) for w in db.query(WeatherDataModel).all()}
+
+    seg = req.segment
+    if seg and seg in SEGMENT_FIELD_MAP:
+        allowed_fields = set(SEGMENT_FIELD_MAP[seg])
+        fields = [f for f in all_fields if f["id"] in allowed_fields]
+        allowed_res = set(SEGMENT_RESOURCE_MAP.get(seg, []))
+        resources = [r for r in all_resources if r["id"] in allowed_res]
+        allowed_canals = set(SEGMENT_CANAL_MAP.get(seg, []))
+        canals = [c for c in all_canals if c["id"] in allowed_canals]
+        allowed_pumps = set(SEGMENT_PUMP_MAP.get(seg, []))
+        pumps = [p for p in all_pumps if p["id"] in allowed_pumps]
+    else:
+        fields = all_fields
+        resources = all_resources
+        canals = all_canals
+        pumps = all_pumps
 
     # 1. Demand Estimation
     demands = [
@@ -212,8 +315,12 @@ def get_health():
 
 # Fields
 @router.get("/fields")
-def get_fields(db: Session = Depends(get_db)):
-    return db.query(FieldModel).all()
+def get_fields(segment: Optional[str] = None, db: Session = Depends(get_db)):
+    fields = db.query(FieldModel).all()
+    if segment and segment in SEGMENT_FIELD_MAP:
+        allowed = set(SEGMENT_FIELD_MAP[segment])
+        return [f for f in fields if f.id in allowed]
+    return fields
 
 @router.post("/fields")
 def create_field(field_in: FieldCreateOrUpdate, db: Session = Depends(get_db)):
@@ -283,8 +390,12 @@ def delete_field(field_id: str, db: Session = Depends(get_db)):
 
 # Water Resources
 @router.get("/water-resources")
-def get_water_resources(db: Session = Depends(get_db)):
-    return db.query(WaterResourceModel).all()
+def get_water_resources(segment: Optional[str] = None, db: Session = Depends(get_db)):
+    resources = db.query(WaterResourceModel).all()
+    if segment and segment in SEGMENT_RESOURCE_MAP:
+        allowed = set(SEGMENT_RESOURCE_MAP[segment])
+        return [r for r in resources if r.id in allowed]
+    return resources
 
 @router.put("/water-resources/{resource_id}")
 def update_water_resource(resource_id: str, res_in: WaterResourceUpdate, db: Session = Depends(get_db)):
@@ -299,8 +410,12 @@ def update_water_resource(resource_id: str, res_in: WaterResourceUpdate, db: Ses
 
 # Canals & Pumps
 @router.get("/canals")
-def get_canals(db: Session = Depends(get_db)):
+def get_canals(segment: Optional[str] = None, db: Session = Depends(get_db)):
     canals = db.query(CanalModel).all()
+    if segment and segment in SEGMENT_CANAL_MAP:
+        allowed = set(SEGMENT_CANAL_MAP[segment])
+        canals = [c for c in canals if c.id in allowed]
+
     results = []
     for c in canals:
         d = model_to_dict(c)
@@ -313,18 +428,29 @@ def get_canals(db: Session = Depends(get_db)):
     return results
 
 @router.get("/pumps")
-def get_pumps(db: Session = Depends(get_db)):
-    return db.query(PumpModel).all()
+def get_pumps(segment: Optional[str] = None, db: Session = Depends(get_db)):
+    pumps = db.query(PumpModel).all()
+    if segment and segment in SEGMENT_PUMP_MAP:
+        allowed = set(SEGMENT_PUMP_MAP[segment])
+        return [p for p in pumps if p.id in allowed]
+    return pumps
 
 # Weather & Soil
 @router.get("/weather")
-def get_weather(db: Session = Depends(get_db)):
+def get_weather(segment: Optional[str] = None, db: Session = Depends(get_db)):
     data = db.query(WeatherDataModel).all()
+    if segment and segment in SEGMENT_FIELD_MAP:
+        allowed = set(SEGMENT_FIELD_MAP[segment])
+        data = [w for w in data if w.fieldId in allowed]
     return {w.fieldId: model_to_dict(w) for w in data}
 
 @router.get("/soil-data")
-def get_soil_data(db: Session = Depends(get_db)):
+def get_soil_data(segment: Optional[str] = None, db: Session = Depends(get_db)):
     fields = db.query(FieldModel).all()
+    if segment and segment in SEGMENT_FIELD_MAP:
+        allowed = set(SEGMENT_FIELD_MAP[segment])
+        fields = [f for f in fields if f.id in allowed]
+
     weather_map = {w.fieldId: w for w in db.query(WeatherDataModel).all()}
     result = []
     for f in fields:
@@ -347,8 +473,12 @@ def get_soil_data(db: Session = Depends(get_db)):
 
 # Demand Estimation
 @router.get("/demand-estimation")
-def get_demand_estimation(db: Session = Depends(get_db)):
+def get_demand_estimation(segment: Optional[str] = None, db: Session = Depends(get_db)):
     fields = [model_to_dict(f) for f in db.query(FieldModel).all()]
+    if segment and segment in SEGMENT_FIELD_MAP:
+        allowed = set(SEGMENT_FIELD_MAP[segment])
+        fields = [f for f in fields if f["id"] in allowed]
+
     weather_map = {w.fieldId: model_to_dict(w) for w in db.query(WeatherDataModel).all()}
     results = []
     for f in fields:
@@ -376,10 +506,10 @@ def run_optimization(req: OptimizationRequest, db: Session = Depends(get_db)):
 
 # Irrigation Schedule
 @router.get("/schedule")
-def get_schedule(db: Session = Depends(get_db)):
+def get_schedule(segment: Optional[str] = None, db: Session = Depends(get_db)):
     global latest_optimization_result
-    if not latest_optimization_result:
-        latest_optimization_result = execute_optimization(OptimizationRequest(), db)
+    if not latest_optimization_result or (segment and latest_optimization_result.get("segment") != segment):
+        latest_optimization_result = execute_optimization(OptimizationRequest(segment=segment), db)
     return {
         "schedule": latest_optimization_result["schedule"],
         "baselineSchedule": latest_optimization_result.get("baselineSchedule", []),
@@ -390,13 +520,14 @@ def get_schedule(db: Session = Depends(get_db)):
 # What-If Simulation
 @router.post("/simulate")
 def run_simulation(req: SimulationRequest, db: Session = Depends(get_db)):
-    normal_result = execute_optimization(OptimizationRequest(), db)
+    normal_result = execute_optimization(OptimizationRequest(segment=req.segment), db)
     simulated_result = execute_optimization(
         OptimizationRequest(
             availableWaterOverride=req.availableWater,
             rainfallMultiplier=req.rainfallMultiplier,
             cropDemandMultiplier=req.cropDemandMultiplier,
             canalCapacityMultiplier=req.canalCapacityMultiplier,
+            segment=req.segment,
         ),
         db
     )
@@ -432,10 +563,10 @@ def run_simulation(req: SimulationRequest, db: Session = Depends(get_db)):
 
 # Analytics
 @router.get("/analytics")
-def get_analytics(db: Session = Depends(get_db)):
+def get_analytics(segment: Optional[str] = None, db: Session = Depends(get_db)):
     global latest_optimization_result
-    if not latest_optimization_result:
-        latest_optimization_result = execute_optimization(OptimizationRequest(), db)
+    if not latest_optimization_result or (segment and latest_optimization_result.get("segment") != segment):
+        latest_optimization_result = execute_optimization(OptimizationRequest(segment=segment), db)
 
     latest = latest_optimization_result
     sched = latest["schedule"]
@@ -465,13 +596,14 @@ def get_analytics(db: Session = Depends(get_db)):
         })
 
     # 7-day trend
+    mult = 0.35 if segment in ["zone-a-krishna", "zone-b-godavari", "zone-c-guntur"] else 1.0
     seven_day_trend = [
-        {"day": "Mon", "availableWater": 7200, "demand": 6800, "allocated": 6500, "saved": 700},
-        {"day": "Tue", "availableWater": 7000, "demand": 6400, "allocated": 6200, "saved": 800},
-        {"day": "Wed", "availableWater": 6800, "demand": 7100, "allocated": 6800, "saved": 950},
-        {"day": "Thu", "availableWater": 6500, "demand": 6900, "allocated": 6500, "saved": 820},
-        {"day": "Fri", "availableWater": 7200, "demand": 6300, "allocated": 5900, "saved": 880},
-        {"day": "Sat", "availableWater": 7500, "demand": 6100, "allocated": 5800, "saved": 910},
+        {"day": "Mon", "availableWater": round(7200 * mult), "demand": round(6800 * mult), "allocated": round(6500 * mult), "saved": round(700 * mult)},
+        {"day": "Tue", "availableWater": round(7000 * mult), "demand": round(6400 * mult), "allocated": round(6200 * mult), "saved": round(800 * mult)},
+        {"day": "Wed", "availableWater": round(6800 * mult), "demand": round(7100 * mult), "allocated": round(6800 * mult), "saved": round(950 * mult)},
+        {"day": "Thu", "availableWater": round(6500 * mult), "demand": round(6900 * mult), "allocated": round(6500 * mult), "saved": round(820 * mult)},
+        {"day": "Fri", "availableWater": round(7200 * mult), "demand": round(6300 * mult), "allocated": round(5900 * mult), "saved": round(880 * mult)},
+        {"day": "Sat", "availableWater": round(7500 * mult), "demand": round(6100 * mult), "allocated": round(5800 * mult), "saved": round(910 * mult)},
         {"day": "Sun (Today)", "availableWater": latest["metrics"]["totalAvailableWater"], "demand": latest["metrics"]["totalWaterDemand"], "allocated": latest["metrics"]["waterAllocated"], "saved": latest["metrics"]["estimatedWaterSaved"]}
     ]
 
@@ -483,6 +615,96 @@ def get_analytics(db: Session = Depends(get_db)):
         "quboConvergence": latest["convergenceHistory"],
         "quboMatrixSummary": latest["quboMatrixSummary"],
     }
+
+# ===================== DATASET EXPLORER ENDPOINTS =====================
+
+@router.get("/datasets/segments")
+def get_dataset_segments():
+    return DATASET_SEGMENTS
+
+@router.get("/datasets/explorer")
+def get_dataset_explorer():
+    weather = load_json("1_weather_and_climate/andhra_pradesh_agro_weather_7day.json")
+    fao_crops = load_csv("2_crop_coefficients_fao56/fao56_crop_coefficients.csv")
+    soil_profiles = load_csv("3_soil_hydrology/krishna_godavari_soil_profiles.csv")
+    canals = load_csv("4_water_resources_and_canals/canal_network_conveyance.csv")
+    barrages = load_csv("4_water_resources_and_canals/prakasam_arthur_cotton_barrages.csv")
+    pumps = load_csv("5_pumps_and_energy_tariffs/agricultural_pumps_specifications.csv")
+    tariffs = load_csv("5_pumps_and_energy_tariffs/ap_time_of_day_electricity_tariffs.csv")
+    iot_sensors = load_csv("6_iot_sensor_telemetry/field_soil_moisture_sensor_timeseries.csv")
+
+    return {
+        "segments": DATASET_SEGMENTS,
+        "datasetCounts": {
+            "weatherStations": len(weather),
+            "faoCropProfiles": len(fao_crops),
+            "soilHydraulicProfiles": len(soil_profiles),
+            "canalSegments": len(canals),
+            "barrages": len(barrages),
+            "pumpSpecifications": len(pumps),
+            "timeOfDayTariffs": len(tariffs),
+            "iotSensorObservations": len(iot_sensors),
+        },
+        "tables": {
+            "faoCrops": fao_crops,
+            "soilProfiles": soil_profiles,
+            "canals": canals,
+            "barrages": barrages,
+            "pumps": pumps,
+            "tariffs": tariffs,
+            "iotSensors": iot_sensors[:40],
+        },
+        "weatherRegions": [
+            {
+                "key": k,
+                "latitude": v.get("latitude"),
+                "longitude": v.get("longitude"),
+                "elevation": v.get("elevation"),
+                "hourlyCount": len(v.get("hourly", {}).get("time", [])),
+                "sampleHourly": {
+                    "times": v.get("hourly", {}).get("time", [])[:24],
+                    "temperatures": v.get("hourly", {}).get("temperature_2m", [])[:24],
+                    "humidity": v.get("hourly", {}).get("relative_humidity_2m", [])[:24],
+                    "precipitationProb": v.get("hourly", {}).get("precipitation_probability", [])[:24],
+                    "et0": v.get("hourly", {}).get("et0_fao_evapotranspiration", [])[:24],
+                    "solarIrradiance": v.get("hourly", {}).get("direct_normal_irradiance", [])[:24],
+                }
+            }
+            for k, v in weather.items()
+        ]
+    }
+
+@router.get("/datasets/telemetry")
+def get_dataset_telemetry(segment: Optional[str] = None, limit: Optional[int] = 50):
+    rows = load_csv("6_iot_sensor_telemetry/field_soil_moisture_sensor_timeseries.csv")
+    if segment and segment in SEGMENT_FIELD_MAP:
+        allowed = set(SEGMENT_FIELD_MAP[segment])
+        rows = [r for r in rows if r.get("field_id") in allowed]
+    return rows[:limit] if limit else rows
+
+@router.get("/datasets/weather-timeseries")
+def get_weather_timeseries(zone: Optional[str] = "Krishna_Delta_Vijayawada"):
+    weather = load_json("1_weather_and_climate/andhra_pradesh_agro_weather_7day.json")
+    zone_data = weather.get(zone) or weather.get("Krishna_Delta_Vijayawada") or {}
+    hourly = zone_data.get("hourly", {})
+    times = hourly.get("time", [])
+    temps = hourly.get("temperature_2m", [])
+    humidity = hourly.get("relative_humidity_2m", [])
+    rain_prob = hourly.get("precipitation_probability", [])
+    et0 = hourly.get("et0_fao_evapotranspiration", [])
+    solar = hourly.get("direct_normal_irradiance", [])
+
+    results = []
+    for i in range(min(48, len(times))):
+        results.append({
+            "time": times[i].replace("2026-09-", "Sep ").replace("T", " "),
+            "temperatureC": temps[i] if i < len(temps) else 32.0,
+            "humidityPercent": humidity[i] if i < len(humidity) else 60.0,
+            "rainProbabilityPercent": rain_prob[i] if i < len(rain_prob) else 10.0,
+            "et0Mm": et0[i] if i < len(et0) else 5.0,
+            "solarIrradianceWm2": solar[i] if i < len(solar) else 450.0,
+        })
+    return results
 
 # Alerts
 @router.get("/alerts")

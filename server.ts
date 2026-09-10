@@ -14,9 +14,11 @@ import {
 } from './server/db.js';
 import { runQuantumOptimization, OptimizationOptions } from './server/quantumOptimizer.js';
 import { estimateWaterDemand } from './server/demandEstimator.js';
+import { DATASET_SEGMENTS, getDatasetExplorerData, getWeatherTimeseriesForZone, loadIoTTimeseries } from './server/datasetService.js';
 import { Field, WaterResource, Canal, Pump, WeatherData, Alert, OptimizationResult } from './src/types.js';
 
 let latestOptimizationResult: OptimizationResult | null = null;
+
 
 async function startServer() {
   const app = express();
@@ -211,11 +213,51 @@ async function startServer() {
     });
   });
 
+  // Datasets & Segmentations
+  app.get('/api/datasets/segments', (_req, res) => {
+    res.json(DATASET_SEGMENTS);
+  });
+
+  app.get('/api/datasets/explorer', (_req, res) => {
+    try {
+      res.json(getDatasetExplorerData());
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get('/api/datasets/telemetry', (req, res) => {
+    try {
+      let timeseries = loadIoTTimeseries();
+      const segment = req.query.segment as string;
+      if (segment && segment !== 'all') {
+        const seg = DATASET_SEGMENTS.find((s) => s.id === segment);
+        if (seg) {
+          timeseries = timeseries.filter((row) => seg.fieldIds.includes(row.field_id));
+        }
+      }
+      res.json(timeseries);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get('/api/datasets/weather-timeseries', (req, res) => {
+    const zone = (req.query.zone as string) || 'Krishna_Delta_Vijayawada';
+    res.json(getWeatherTimeseriesForZone(zone));
+  });
+
   // Fields
   app.get('/api/fields', (req, res) => {
-    const fields = fetchFieldsFromDb();
+    let fields = fetchFieldsFromDb();
+    const segment = req.query.segment as string;
+    if (segment && segment !== 'all') {
+      const seg = DATASET_SEGMENTS.find((s) => s.id === segment);
+      if (seg) fields = fields.filter((f) => seg.fieldIds.includes(f.id));
+    }
     res.json(fields);
   });
+
 
   app.post('/api/fields', (req, res) => {
     try {
@@ -309,7 +351,12 @@ async function startServer() {
 
   // Water Resources
   app.get('/api/water-resources', (req, res) => {
-    const resources = fetchWaterResourcesFromDb();
+    let resources = fetchWaterResourcesFromDb();
+    const segment = req.query.segment as string;
+    if (segment && segment !== 'all') {
+      const seg = DATASET_SEGMENTS.find((s) => s.id === segment);
+      if (seg) resources = resources.filter((r) => seg.resourceIds.includes(r.id));
+    }
     res.json(resources);
   });
 
@@ -330,21 +377,49 @@ async function startServer() {
 
   // Canals & Pumps
   app.get('/api/canals', (req, res) => {
-    res.json(fetchCanalsFromDb());
+    let canals = fetchCanalsFromDb();
+    const segment = req.query.segment as string;
+    if (segment && segment !== 'all') {
+      const seg = DATASET_SEGMENTS.find((s) => s.id === segment);
+      if (seg) canals = canals.filter((c) => seg.canalIds.includes(c.id));
+    }
+    res.json(canals);
   });
 
   app.get('/api/pumps', (req, res) => {
-    res.json(fetchPumpsFromDb());
+    let pumps = fetchPumpsFromDb();
+    const segment = req.query.segment as string;
+    if (segment && segment !== 'all') {
+      const seg = DATASET_SEGMENTS.find((s) => s.id === segment);
+      if (seg) pumps = pumps.filter((p) => seg.pumpIds.includes(p.id));
+    }
+    res.json(pumps);
   });
 
   // Weather & Soil
   app.get('/api/weather', (req, res) => {
     const weather = fetchWeatherFromDb();
+    const segment = req.query.segment as string;
+    if (segment && segment !== 'all') {
+      const seg = DATASET_SEGMENTS.find((s) => s.id === segment);
+      if (seg) {
+        const filtered: Record<string, WeatherData> = {};
+        for (const fId of seg.fieldIds) {
+          if (weather[fId]) filtered[fId] = weather[fId];
+        }
+        return res.json(filtered);
+      }
+    }
     res.json(weather);
   });
 
   app.get('/api/soil-data', (req, res) => {
-    const fields = fetchFieldsFromDb();
+    let fields = fetchFieldsFromDb();
+    const segment = req.query.segment as string;
+    if (segment && segment !== 'all') {
+      const seg = DATASET_SEGMENTS.find((s) => s.id === segment);
+      if (seg) fields = fields.filter((f) => seg.fieldIds.includes(f.id));
+    }
     const weather = fetchWeatherFromDb();
     const soilData = fields.map((f) => ({
       fieldId: f.id,
@@ -366,7 +441,12 @@ async function startServer() {
 
   // Demand Estimation
   app.get('/api/demand-estimation', (req, res) => {
-    const fields = fetchFieldsFromDb();
+    let fields = fetchFieldsFromDb();
+    const segment = req.query.segment as string;
+    if (segment && segment !== 'all') {
+      const seg = DATASET_SEGMENTS.find((s) => s.id === segment);
+      if (seg) fields = fields.filter((f) => seg.fieldIds.includes(f.id));
+    }
     const weather = fetchWeatherFromDb();
     const estimations = fields.map((f) => {
       const w = weather[f.id] || {
@@ -384,6 +464,7 @@ async function startServer() {
     });
     res.json(estimations);
   });
+
 
   // Optimization Execution
   app.post('/api/optimize', (req, res) => {
@@ -414,19 +495,23 @@ async function startServer() {
 
   // Irrigation Schedule
   app.get('/api/schedule', (req, res) => {
-    if (!latestOptimizationResult) {
-      const fields = fetchFieldsFromDb();
-      const resources = fetchWaterResourcesFromDb();
-      const canals = fetchCanalsFromDb();
-      const pumps = fetchPumpsFromDb();
-      const weather = fetchWeatherFromDb();
-      latestOptimizationResult = runQuantumOptimization(fields, resources, canals, pumps, weather);
-    }
+    const segment = (req.query.segment as string) || undefined;
+    const fields = fetchFieldsFromDb();
+    const resources = fetchWaterResourcesFromDb();
+    const canals = fetchCanalsFromDb();
+    const pumps = fetchPumpsFromDb();
+    const weather = fetchWeatherFromDb();
+
+    const optResult = runQuantumOptimization(fields, resources, canals, pumps, weather, {
+      segment: segment && segment !== 'all' ? (segment as any) : undefined,
+    });
+    latestOptimizationResult = optResult;
+
     res.json({
-      schedule: latestOptimizationResult.schedule,
-      baselineSchedule: latestOptimizationResult.baselineSchedule,
-      metrics: latestOptimizationResult.metrics,
-      timestamp: latestOptimizationResult.timestamp,
+      schedule: optResult.schedule,
+      baselineSchedule: optResult.baselineSchedule,
+      metrics: optResult.metrics,
+      timestamp: optResult.timestamp,
     });
   });
 
@@ -439,6 +524,7 @@ async function startServer() {
         rainfallMultiplier,
         cropDemandMultiplier,
         canalCapacityMultiplier,
+        segment,
       } = req.body;
 
       const fields = fetchFieldsFromDb();
@@ -446,26 +532,30 @@ async function startServer() {
       const canals = fetchCanalsFromDb();
       const pumps = fetchPumpsFromDb();
       const weather = fetchWeatherFromDb();
+      const segParam = segment && segment !== 'all' ? segment : undefined;
 
-      // Run baseline normal condition
-      const normalResult = runQuantumOptimization(fields, resources, canals, pumps, weather, {});
+      // Run baseline normal condition for this segment
+      const normalResult = runQuantumOptimization(fields, resources, canals, pumps, weather, {
+        segment: segParam,
+      });
 
-      // Run simulated condition
+      // Run simulated condition for this segment
       const simulatedResult = runQuantumOptimization(fields, resources, canals, pumps, weather, {
         availableWaterOverride: availableWater,
         rainfallMultiplier: Number(rainfallMultiplier) || 1.0,
         cropDemandMultiplier: Number(cropDemandMultiplier) || 1.0,
         canalCapacityMultiplier: Number(canalCapacityMultiplier) || 1.0,
+        segment: segParam,
       });
 
       // Generate dynamic alert if severe shortage
-      if (simulatedResult.metrics.waterShortage > 500) {
+      if (simulatedResult.metrics.waterShortage > 200) {
         db.run(
           `INSERT OR REPLACE INTO alerts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             `sim-${Date.now()}`,
             'CRITICAL',
-            `Simulation Alert: Severe Water Shortage under "${scenarioName || 'Custom'}"`,
+            `Simulation Alert: Severe Water Shortage under "${scenarioName || 'Custom'}" [${segment || 'All'}]`,
             `Water deficit of ${simulatedResult.metrics.waterShortage}L detected. ${simulatedResult.metrics.fieldsRecommendedForDelay} fields forced to delay irrigation.`,
             'What-If Scenario Engine',
             'Just now',
@@ -480,6 +570,7 @@ async function startServer() {
 
       res.json({
         scenarioName: scenarioName || 'Custom Simulation',
+        segment: segment || 'all',
         before: normalResult,
         after: simulatedResult,
         comparison: {
@@ -497,17 +588,19 @@ async function startServer() {
 
   // Analytics
   app.get('/api/analytics', (req, res) => {
-    if (!latestOptimizationResult) {
-      const fields = fetchFieldsFromDb();
-      const resources = fetchWaterResourcesFromDb();
-      const canals = fetchCanalsFromDb();
-      const pumps = fetchPumpsFromDb();
-      const weather = fetchWeatherFromDb();
-      latestOptimizationResult = runQuantumOptimization(fields, resources, canals, pumps, weather);
-    }
-
+    const segment = (req.query.segment as string) || undefined;
     const fields = fetchFieldsFromDb();
-    const sched = latestOptimizationResult.schedule;
+    const resources = fetchWaterResourcesFromDb();
+    const canals = fetchCanalsFromDb();
+    const pumps = fetchPumpsFromDb();
+    const weather = fetchWeatherFromDb();
+
+    const optResult = runQuantumOptimization(fields, resources, canals, pumps, weather, {
+      segment: segment && segment !== 'all' ? (segment as any) : undefined,
+    });
+    latestOptimizationResult = optResult;
+
+    const sched = optResult.schedule;
 
     // Crop-wise allocation
     const cropAllocationMap: Record<string, { crop: string; allocatedLiters: number; count: number }> = {};
@@ -521,7 +614,7 @@ async function startServer() {
 
     // Field-wise allocation vs baseline
     const fieldAllocationComparison = sched.map((s) => {
-      const base = latestOptimizationResult?.baselineSchedule.find((b) => b.fieldId === s.fieldId);
+      const base = optResult.baselineSchedule.find((b) => b.fieldId === s.fieldId);
       return {
         fieldId: s.fieldId,
         crop: s.crop,
@@ -532,24 +625,25 @@ async function startServer() {
       };
     });
 
-    // 7-day usage trend (synthetic based on command area records)
+    // 7-day usage trend scaled to segment
+    const baseScale = optResult.metrics.totalAvailableWater > 0 ? optResult.metrics.totalAvailableWater / 7200 : 1.0;
     const sevenDayTrend = [
-      { day: 'Mon', availableWater: 7200, demand: 6800, allocated: 6500, saved: 700 },
-      { day: 'Tue', availableWater: 7000, demand: 6400, allocated: 6200, saved: 800 },
-      { day: 'Wed', availableWater: 6800, demand: 7100, allocated: 6800, saved: 950 },
-      { day: 'Thu', availableWater: 6500, demand: 6900, allocated: 6500, saved: 820 },
-      { day: 'Fri', availableWater: 7200, demand: 6300, allocated: 5900, saved: 880 },
-      { day: 'Sat', availableWater: 7500, demand: 6100, allocated: 5800, saved: 910 },
-      { day: 'Sun (Today)', availableWater: latestOptimizationResult.metrics.totalAvailableWater, demand: latestOptimizationResult.metrics.totalWaterDemand, allocated: latestOptimizationResult.metrics.waterAllocated, saved: latestOptimizationResult.metrics.estimatedWaterSaved },
+      { day: 'Mon', availableWater: Math.round(7200 * baseScale), demand: Math.round(6800 * baseScale), allocated: Math.round(6500 * baseScale), saved: Math.round(700 * baseScale) },
+      { day: 'Tue', availableWater: Math.round(7000 * baseScale), demand: Math.round(6400 * baseScale), allocated: Math.round(6200 * baseScale), saved: Math.round(800 * baseScale) },
+      { day: 'Wed', availableWater: Math.round(6800 * baseScale), demand: Math.round(7100 * baseScale), allocated: Math.round(6800 * baseScale), saved: Math.round(950 * baseScale) },
+      { day: 'Thu', availableWater: Math.round(6500 * baseScale), demand: Math.round(6900 * baseScale), allocated: Math.round(6500 * baseScale), saved: Math.round(820 * baseScale) },
+      { day: 'Fri', availableWater: Math.round(7200 * baseScale), demand: Math.round(6300 * baseScale), allocated: Math.round(5900 * baseScale), saved: Math.round(880 * baseScale) },
+      { day: 'Sat', availableWater: Math.round(7500 * baseScale), demand: Math.round(6100 * baseScale), allocated: Math.round(5800 * baseScale), saved: Math.round(910 * baseScale) },
+      { day: 'Sun (Today)', availableWater: optResult.metrics.totalAvailableWater, demand: optResult.metrics.totalWaterDemand, allocated: optResult.metrics.waterAllocated, saved: optResult.metrics.estimatedWaterSaved },
     ];
 
     res.json({
-      metrics: latestOptimizationResult.metrics,
+      metrics: optResult.metrics,
       cropAllocation: Object.values(cropAllocationMap),
       fieldAllocationComparison,
       sevenDayTrend,
-      quboConvergence: latestOptimizationResult.convergenceHistory,
-      quboMatrixSummary: latestOptimizationResult.quboMatrixSummary,
+      quboConvergence: optResult.convergenceHistory,
+      quboMatrixSummary: optResult.quboMatrixSummary,
     });
   });
 
