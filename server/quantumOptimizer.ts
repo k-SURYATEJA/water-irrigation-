@@ -146,7 +146,7 @@ export function runQuantumOptimization(
   // 3. Simulated Quantum Annealing (SQA / QSA) Solver
   // Uses transverse field Hamiltonian: H(s) = (1-s)*H_transverse + s*H_problem
   // with quantum tunneling probabilities through energy barriers
-  const iterations = options.customIterations || 200;
+  const iterations = options.customIterations || Math.max(250, totalVars * 12);
   let bestState = new Array(totalVars).fill(0);
   let bestEnergy = Infinity;
 
@@ -349,7 +349,11 @@ export function runQuantumOptimization(
   });
 
   // Calculate Metrics
-  const waterShortage = Math.max(0, totalWaterDemand - waterAllocated);
+  // Active water demand considers only fields requiring irrigation today (excluding rain-delayed fields)
+  const activeIrrigationDemand = demands
+    .filter((d) => d.recommendation === 'Irrigate')
+    .reduce((sum, d) => sum + d.recommendedAmountLiters, 0);
+  const waterShortage = Math.max(0, activeIrrigationDemand - waterAllocated);
   const waterSaved = Math.max(0, baselineAllocated - waterAllocated);
   const costSavings = Math.max(0, baselineCost - totalOptimizedOperatingCost);
   const costSavingsPercent = baselineCost > 0 ? Math.round((costSavings / baselineCost) * 100) : 0;

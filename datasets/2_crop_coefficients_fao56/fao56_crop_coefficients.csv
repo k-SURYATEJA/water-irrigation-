@@ -1,0 +1,8 @@
+crop_id,common_name,scientific_name,crop_group,kc_initial,kc_mid_stage,kc_end_stage,optimal_moisture_min_pct,optimal_moisture_max_pct,root_depth_min_m,root_depth_max_m,critical_growth_stage,yield_response_factor_ky,allowable_depletion_fraction_p,water_sensitivity,growing_period_days,average_seasonal_water_need_mm
+tomato,Tomato,Solanum lycopersicum,Vegetables,0.6,1.15,0.8,60,80,0.7,1.5,Flowering & Fruit Set,1.05,0.4,High,100-140,400-600
+paddy,Paddy / Rice,Oryza sativa,Cereals,1.05,1.25,0.9,70,95,0.5,1.0,Panicle Initiation & Flowering,1.1,0.2,High,110-150,900-1200
+groundnut,Groundnut / Peanut,Arachis hypogaea,Oilseeds,0.45,0.85,0.6,50,70,0.5,1.0,Pegging & Pod Development,0.7,0.5,Medium,100-130,350-500
+cotton,Cotton,Gossypium hirsutum,Fibre,0.45,0.9,0.65,55,75,1.0,1.7,Boll Formation & Flowering,0.85,0.65,Medium,150-180,700-1000
+maize,Maize / Corn,Zea mays,Cereals,0.4,1.05,0.7,60,75,0.8,1.5,Tasseling & Silking,1.25,0.55,Medium,90-120,500-800
+chillies,Chillies / Hot Pepper,Capsicum annuum,Spices/Vegetables,0.5,1.0,0.75,55,70,0.6,1.2,Flowering & Fruit Development,1.1,0.45,High,120-160,500-750
+sugarcane,Sugarcane,Saccharum officinarum,Sugar Crops,0.4,1.25,0.75,65,85,1.2,2.0,Tillering & Formative Phase,1.2,0.65,High,300-365,1500-2500

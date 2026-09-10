@@ -1,0 +1,169 @@
+timestamp_ist,field_id,crop,location,soil_moisture_pct,soil_temperature_c,ambient_humidity_pct,sensor_type,battery_level_pct,irrigation_solenoid_valve_status
+2026-09-01T06:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,37.5,33.8,60.6,Capacitive FMCW 10cm Probe,88.1,OPEN
+2026-09-01T10:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,36.3,34.4,76.9,Capacitive FMCW 10cm Probe,86.2,CLOSED
+2026-09-01T14:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,35.9,32.5,60.7,Capacitive FMCW 10cm Probe,92.1,CLOSED
+2026-09-01T18:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,35.0,30.2,65.0,Capacitive FMCW 10cm Probe,92.6,CLOSED
+2026-09-02T06:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,33.9,31.3,74.7,Capacitive FMCW 10cm Probe,85.1,OPEN
+2026-09-02T10:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,33.3,34.8,77.5,Capacitive FMCW 10cm Probe,87.2,CLOSED
+2026-09-02T14:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,32.9,35.7,68.4,Capacitive FMCW 10cm Probe,86.4,CLOSED
+2026-09-02T18:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,31.9,35.1,75.1,Capacitive FMCW 10cm Probe,95.2,CLOSED
+2026-09-03T06:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,31.3,33.2,84.3,Capacitive FMCW 10cm Probe,92.7,OPEN
+2026-09-03T10:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,30.2,35.0,75.5,Capacitive FMCW 10cm Probe,93.1,CLOSED
+2026-09-03T14:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,29.7,34.2,61.1,Capacitive FMCW 10cm Probe,89.1,CLOSED
+2026-09-03T18:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,29.3,30.5,65.8,Capacitive FMCW 10cm Probe,88.9,CLOSED
+2026-09-04T06:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,28.7,33.8,69.1,Capacitive FMCW 10cm Probe,87.9,OPEN
+2026-09-04T10:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,27.8,31.6,83.4,Capacitive FMCW 10cm Probe,93.5,CLOSED
+2026-09-04T14:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,27.3,31.0,78.2,Capacitive FMCW 10cm Probe,90.3,CLOSED
+2026-09-04T18:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,26.5,35.9,76.0,Capacitive FMCW 10cm Probe,94.6,CLOSED
+2026-09-05T06:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,26.0,35.1,79.4,Capacitive FMCW 10cm Probe,85.4,OPEN
+2026-09-05T10:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,25.6,31.9,66.7,Capacitive FMCW 10cm Probe,98.2,CLOSED
+2026-09-05T14:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,24.7,35.3,67.9,Capacitive FMCW 10cm Probe,90.5,CLOSED
+2026-09-05T18:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,24.1,35.5,71.5,Capacitive FMCW 10cm Probe,88.5,CLOSED
+2026-09-06T06:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,23.3,33.4,66.6,Capacitive FMCW 10cm Probe,97.6,OPEN
+2026-09-06T10:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,22.1,32.4,65.5,Capacitive FMCW 10cm Probe,92.1,CLOSED
+2026-09-06T14:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,21.7,30.5,61.2,Capacitive FMCW 10cm Probe,93.8,CLOSED
+2026-09-06T18:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,21.3,34.8,70.6,Capacitive FMCW 10cm Probe,90.3,CLOSED
+2026-09-07T06:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,20.2,36.0,73.2,Capacitive FMCW 10cm Probe,97.1,OPEN
+2026-09-07T10:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,20.0,30.1,78.0,Capacitive FMCW 10cm Probe,92.5,CLOSED
+2026-09-07T14:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,20.0,31.6,76.0,Capacitive FMCW 10cm Probe,91.1,CLOSED
+2026-09-07T18:00:00+05:30,F1,Tomato,Zone A - Krishna Delta North,20.0,32.7,83.8,Capacitive FMCW 10cm Probe,88.7,CLOSED
+2026-09-01T06:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,76.9,33.0,64.5,Capacitive FMCW 10cm Probe,97.2,CLOSED
+2026-09-01T10:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,76.0,31.8,76.0,Capacitive FMCW 10cm Probe,87.1,CLOSED
+2026-09-01T14:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,75.0,34.6,73.5,Capacitive FMCW 10cm Probe,92.4,CLOSED
+2026-09-01T18:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,74.7,30.0,68.1,Capacitive FMCW 10cm Probe,98.0,CLOSED
+2026-09-02T06:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,74.1,35.3,80.8,Capacitive FMCW 10cm Probe,85.8,CLOSED
+2026-09-02T10:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,73.8,35.3,83.7,Capacitive FMCW 10cm Probe,91.8,CLOSED
+2026-09-02T14:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,72.8,30.4,79.0,Capacitive FMCW 10cm Probe,86.8,CLOSED
+2026-09-02T18:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,72.2,32.9,73.7,Capacitive FMCW 10cm Probe,97.2,CLOSED
+2026-09-03T06:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,87.2,32.5,65.3,Capacitive FMCW 10cm Probe,92.6,CLOSED
+2026-09-03T10:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,92.0,34.4,65.0,Capacitive FMCW 10cm Probe,89.4,CLOSED
+2026-09-03T14:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,92.0,36.0,76.2,Capacitive FMCW 10cm Probe,91.1,CLOSED
+2026-09-03T18:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,92.0,33.1,63.0,Capacitive FMCW 10cm Probe,88.1,CLOSED
+2026-09-04T06:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,91.5,32.0,74.7,Capacitive FMCW 10cm Probe,88.1,CLOSED
+2026-09-04T10:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,91.0,30.4,75.8,Capacitive FMCW 10cm Probe,97.7,CLOSED
+2026-09-04T14:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,90.5,35.2,61.8,Capacitive FMCW 10cm Probe,94.4,CLOSED
+2026-09-04T18:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,89.3,31.3,63.3,Capacitive FMCW 10cm Probe,93.0,CLOSED
+2026-09-05T06:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,88.3,32.8,79.6,Capacitive FMCW 10cm Probe,87.7,CLOSED
+2026-09-05T10:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,87.6,30.6,70.8,Capacitive FMCW 10cm Probe,91.5,CLOSED
+2026-09-05T14:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,86.4,34.4,76.8,Capacitive FMCW 10cm Probe,86.4,CLOSED
+2026-09-05T18:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,85.4,32.4,68.5,Capacitive FMCW 10cm Probe,88.5,CLOSED
+2026-09-06T06:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,84.7,31.1,71.2,Capacitive FMCW 10cm Probe,88.9,CLOSED
+2026-09-06T10:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,84.0,31.5,83.1,Capacitive FMCW 10cm Probe,97.1,CLOSED
+2026-09-06T14:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,82.8,33.3,61.3,Capacitive FMCW 10cm Probe,96.7,CLOSED
+2026-09-06T18:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,81.7,35.8,83.2,Capacitive FMCW 10cm Probe,87.3,CLOSED
+2026-09-07T06:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,81.1,32.9,65.3,Capacitive FMCW 10cm Probe,85.8,CLOSED
+2026-09-07T10:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,80.5,32.3,84.6,Capacitive FMCW 10cm Probe,96.0,CLOSED
+2026-09-07T14:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,79.4,32.7,70.6,Capacitive FMCW 10cm Probe,98.9,CLOSED
+2026-09-07T18:00:00+05:30,F2,Paddy,Zone B - Godavari Lowlands,78.9,33.3,78.0,Capacitive FMCW 10cm Probe,89.2,CLOSED
+2026-09-01T06:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,44.2,35.8,74.5,Capacitive FMCW 10cm Probe,95.5,OPEN
+2026-09-01T10:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,43.5,30.3,74.6,Capacitive FMCW 10cm Probe,96.9,CLOSED
+2026-09-01T14:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,43.1,30.9,84.0,Capacitive FMCW 10cm Probe,87.6,CLOSED
+2026-09-01T18:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,42.6,33.6,76.9,Capacitive FMCW 10cm Probe,86.7,CLOSED
+2026-09-02T06:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,41.7,35.3,66.2,Capacitive FMCW 10cm Probe,93.7,OPEN
+2026-09-02T10:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,41.0,32.5,74.6,Capacitive FMCW 10cm Probe,98.1,CLOSED
+2026-09-02T14:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,40.5,31.2,77.9,Capacitive FMCW 10cm Probe,90.5,CLOSED
+2026-09-02T18:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,39.9,34.0,67.5,Capacitive FMCW 10cm Probe,95.5,CLOSED
+2026-09-03T06:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,38.7,30.4,71.5,Capacitive FMCW 10cm Probe,98.9,OPEN
+2026-09-03T10:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,38.1,30.4,65.3,Capacitive FMCW 10cm Probe,98.1,CLOSED
+2026-09-03T14:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,37.5,35.3,82.0,Capacitive FMCW 10cm Probe,87.2,CLOSED
+2026-09-03T18:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,36.7,35.0,77.6,Capacitive FMCW 10cm Probe,98.8,CLOSED
+2026-09-04T06:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,35.6,33.9,60.2,Capacitive FMCW 10cm Probe,89.2,OPEN
+2026-09-04T10:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,35.2,34.0,83.5,Capacitive FMCW 10cm Probe,86.6,CLOSED
+2026-09-04T14:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,34.6,30.6,73.8,Capacitive FMCW 10cm Probe,93.5,CLOSED
+2026-09-04T18:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,33.8,34.3,65.1,Capacitive FMCW 10cm Probe,88.7,CLOSED
+2026-09-05T06:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,32.7,32.9,82.6,Capacitive FMCW 10cm Probe,86.3,OPEN
+2026-09-05T10:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,32.4,32.5,66.9,Capacitive FMCW 10cm Probe,95.8,CLOSED
+2026-09-05T14:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,31.4,33.8,66.5,Capacitive FMCW 10cm Probe,92.7,CLOSED
+2026-09-05T18:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,31.1,32.6,60.2,Capacitive FMCW 10cm Probe,97.4,CLOSED
+2026-09-06T06:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,30.0,35.4,73.6,Capacitive FMCW 10cm Probe,93.2,OPEN
+2026-09-06T10:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,29.5,30.9,63.2,Capacitive FMCW 10cm Probe,97.6,CLOSED
+2026-09-06T14:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,28.3,34.8,81.5,Capacitive FMCW 10cm Probe,87.9,CLOSED
+2026-09-06T18:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,27.3,31.5,62.6,Capacitive FMCW 10cm Probe,97.4,CLOSED
+2026-09-07T06:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,26.9,32.4,75.5,Capacitive FMCW 10cm Probe,98.0,OPEN
+2026-09-07T10:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,25.9,35.2,84.4,Capacitive FMCW 10cm Probe,97.3,CLOSED
+2026-09-07T14:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,25.3,30.1,78.4,Capacitive FMCW 10cm Probe,98.0,CLOSED
+2026-09-07T18:00:00+05:30,F3,Groundnut,Zone A - Rayanapadu Terraces,24.2,34.8,81.6,Capacitive FMCW 10cm Probe,88.7,CLOSED
+2026-09-01T06:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,50.9,34.7,62.7,Capacitive FMCW 10cm Probe,97.0,CLOSED
+2026-09-01T10:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,50.2,31.3,80.4,Capacitive FMCW 10cm Probe,89.3,CLOSED
+2026-09-01T14:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,49.9,34.8,65.7,Capacitive FMCW 10cm Probe,87.7,CLOSED
+2026-09-01T18:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,48.7,32.0,81.6,Capacitive FMCW 10cm Probe,88.9,CLOSED
+2026-09-02T06:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,47.5,33.8,70.0,Capacitive FMCW 10cm Probe,92.5,CLOSED
+2026-09-02T10:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,46.4,35.6,62.9,Capacitive FMCW 10cm Probe,87.5,CLOSED
+2026-09-02T14:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,46.0,35.8,66.6,Capacitive FMCW 10cm Probe,91.1,CLOSED
+2026-09-02T18:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,45.1,34.4,67.8,Capacitive FMCW 10cm Probe,92.2,CLOSED
+2026-09-03T06:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,44.6,32.3,74.4,Capacitive FMCW 10cm Probe,94.9,CLOSED
+2026-09-03T10:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,43.8,30.0,83.1,Capacitive FMCW 10cm Probe,95.1,CLOSED
+2026-09-03T14:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,43.2,34.5,76.8,Capacitive FMCW 10cm Probe,86.0,CLOSED
+2026-09-03T18:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,42.6,34.0,68.3,Capacitive FMCW 10cm Probe,96.9,CLOSED
+2026-09-04T06:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,42.0,34.3,67.5,Capacitive FMCW 10cm Probe,90.7,CLOSED
+2026-09-04T10:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,41.6,32.4,67.4,Capacitive FMCW 10cm Probe,90.9,CLOSED
+2026-09-04T14:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,40.5,35.6,76.9,Capacitive FMCW 10cm Probe,93.6,CLOSED
+2026-09-04T18:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,40.2,31.8,73.7,Capacitive FMCW 10cm Probe,89.0,CLOSED
+2026-09-05T06:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,39.3,32.6,74.5,Capacitive FMCW 10cm Probe,91.5,CLOSED
+2026-09-05T10:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,38.6,32.7,65.3,Capacitive FMCW 10cm Probe,97.6,CLOSED
+2026-09-05T14:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,38.2,34.8,64.2,Capacitive FMCW 10cm Probe,92.2,CLOSED
+2026-09-05T18:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,37.2,33.8,68.4,Capacitive FMCW 10cm Probe,95.5,CLOSED
+2026-09-06T06:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,36.7,34.0,65.6,Capacitive FMCW 10cm Probe,85.3,CLOSED
+2026-09-06T10:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,35.6,31.5,71.9,Capacitive FMCW 10cm Probe,86.0,CLOSED
+2026-09-06T14:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,35.1,32.5,75.7,Capacitive FMCW 10cm Probe,94.7,CLOSED
+2026-09-06T18:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,34.2,33.0,66.1,Capacitive FMCW 10cm Probe,85.1,CLOSED
+2026-09-07T06:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,33.8,34.5,79.3,Capacitive FMCW 10cm Probe,91.0,CLOSED
+2026-09-07T10:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,33.1,31.1,83.9,Capacitive FMCW 10cm Probe,85.7,CLOSED
+2026-09-07T14:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,32.4,31.5,81.2,Capacitive FMCW 10cm Probe,96.2,CLOSED
+2026-09-07T18:00:00+05:30,F4,Cotton,Zone C - Guntur Upland Reach,31.5,34.0,84.7,Capacitive FMCW 10cm Probe,98.3,CLOSED
+2026-09-01T06:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,61.1,35.3,75.3,Capacitive FMCW 10cm Probe,92.1,CLOSED
+2026-09-01T10:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,59.9,35.0,73.7,Capacitive FMCW 10cm Probe,95.4,CLOSED
+2026-09-01T14:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,59.4,32.8,66.5,Capacitive FMCW 10cm Probe,93.9,CLOSED
+2026-09-01T18:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,58.6,34.6,73.0,Capacitive FMCW 10cm Probe,88.8,CLOSED
+2026-09-02T06:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,58.0,30.5,67.1,Capacitive FMCW 10cm Probe,89.5,CLOSED
+2026-09-02T10:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,57.5,33.2,63.5,Capacitive FMCW 10cm Probe,94.7,CLOSED
+2026-09-02T14:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,56.8,34.2,61.6,Capacitive FMCW 10cm Probe,92.6,CLOSED
+2026-09-02T18:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,56.2,32.5,65.2,Capacitive FMCW 10cm Probe,97.7,CLOSED
+2026-09-03T06:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,55.1,33.5,77.4,Capacitive FMCW 10cm Probe,95.7,CLOSED
+2026-09-03T10:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,54.5,32.3,60.1,Capacitive FMCW 10cm Probe,95.5,CLOSED
+2026-09-03T14:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,53.8,35.1,83.8,Capacitive FMCW 10cm Probe,95.5,CLOSED
+2026-09-03T18:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,53.3,33.3,75.1,Capacitive FMCW 10cm Probe,88.1,CLOSED
+2026-09-04T06:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,52.7,32.6,60.7,Capacitive FMCW 10cm Probe,94.5,CLOSED
+2026-09-04T10:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,52.0,32.4,64.1,Capacitive FMCW 10cm Probe,86.8,CLOSED
+2026-09-04T14:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,51.3,33.7,60.7,Capacitive FMCW 10cm Probe,92.9,CLOSED
+2026-09-04T18:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,50.9,30.2,76.1,Capacitive FMCW 10cm Probe,91.5,CLOSED
+2026-09-05T06:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,50.4,30.3,69.5,Capacitive FMCW 10cm Probe,89.6,CLOSED
+2026-09-05T10:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,49.4,34.6,69.5,Capacitive FMCW 10cm Probe,96.6,CLOSED
+2026-09-05T14:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,49.1,31.5,62.0,Capacitive FMCW 10cm Probe,92.6,CLOSED
+2026-09-05T18:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,48.2,36.0,68.7,Capacitive FMCW 10cm Probe,95.9,CLOSED
+2026-09-06T06:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,47.1,33.9,78.9,Capacitive FMCW 10cm Probe,87.8,CLOSED
+2026-09-06T10:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,46.7,30.1,63.8,Capacitive FMCW 10cm Probe,94.4,CLOSED
+2026-09-06T14:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,45.7,33.4,65.4,Capacitive FMCW 10cm Probe,95.7,CLOSED
+2026-09-06T18:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,44.8,31.0,75.2,Capacitive FMCW 10cm Probe,86.6,CLOSED
+2026-09-07T06:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,44.4,34.9,84.1,Capacitive FMCW 10cm Probe,85.4,CLOSED
+2026-09-07T10:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,43.2,31.9,76.9,Capacitive FMCW 10cm Probe,90.6,CLOSED
+2026-09-07T14:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,42.3,34.3,61.9,Capacitive FMCW 10cm Probe,93.8,CLOSED
+2026-09-07T18:00:00+05:30,F5,Maize,Zone C - Tenali Command Branch,41.2,30.6,79.3,Capacitive FMCW 10cm Probe,93.4,CLOSED
+2026-09-01T06:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,33.0,30.7,84.6,Capacitive FMCW 10cm Probe,89.9,CLOSED
+2026-09-01T10:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,32.2,32.6,69.3,Capacitive FMCW 10cm Probe,89.8,CLOSED
+2026-09-01T14:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,31.8,35.1,80.6,Capacitive FMCW 10cm Probe,98.5,CLOSED
+2026-09-01T18:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,30.9,33.8,80.7,Capacitive FMCW 10cm Probe,91.1,CLOSED
+2026-09-02T06:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,30.4,34.4,84.1,Capacitive FMCW 10cm Probe,96.3,CLOSED
+2026-09-02T10:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,29.7,33.2,72.1,Capacitive FMCW 10cm Probe,95.2,CLOSED
+2026-09-02T14:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,28.6,31.6,81.3,Capacitive FMCW 10cm Probe,86.2,CLOSED
+2026-09-02T18:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,27.9,35.3,66.1,Capacitive FMCW 10cm Probe,93.5,CLOSED
+2026-09-03T06:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,26.8,32.3,60.7,Capacitive FMCW 10cm Probe,87.5,CLOSED
+2026-09-03T10:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,26.2,31.3,79.9,Capacitive FMCW 10cm Probe,97.3,CLOSED
+2026-09-03T14:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,25.9,34.2,66.9,Capacitive FMCW 10cm Probe,98.3,CLOSED
+2026-09-03T18:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,25.2,30.5,78.0,Capacitive FMCW 10cm Probe,95.6,CLOSED
+2026-09-04T06:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,24.4,34.1,76.1,Capacitive FMCW 10cm Probe,96.1,CLOSED
+2026-09-04T10:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,23.5,30.6,65.5,Capacitive FMCW 10cm Probe,89.3,CLOSED
+2026-09-04T14:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,22.7,33.5,71.8,Capacitive FMCW 10cm Probe,91.0,CLOSED
+2026-09-04T18:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,21.8,34.5,68.3,Capacitive FMCW 10cm Probe,88.8,CLOSED
+2026-09-05T06:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,21.3,31.5,63.0,Capacitive FMCW 10cm Probe,86.7,CLOSED
+2026-09-05T10:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.9,33.2,79.1,Capacitive FMCW 10cm Probe,88.0,CLOSED
+2026-09-05T14:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,32.9,78.1,Capacitive FMCW 10cm Probe,92.3,CLOSED
+2026-09-05T18:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,31.7,62.5,Capacitive FMCW 10cm Probe,88.2,CLOSED
+2026-09-06T06:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,31.1,60.4,Capacitive FMCW 10cm Probe,88.8,CLOSED
+2026-09-06T10:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,35.8,73.8,Capacitive FMCW 10cm Probe,86.8,CLOSED
+2026-09-06T14:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,35.2,72.3,Capacitive FMCW 10cm Probe,93.0,CLOSED
+2026-09-06T18:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,32.8,71.0,Capacitive FMCW 10cm Probe,85.7,CLOSED
+2026-09-07T06:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,35.6,71.9,Capacitive FMCW 10cm Probe,90.6,CLOSED
+2026-09-07T10:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,30.4,75.7,Capacitive FMCW 10cm Probe,87.1,CLOSED
+2026-09-07T14:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,33.4,67.6,Capacitive FMCW 10cm Probe,86.7,CLOSED
+2026-09-07T18:00:00+05:30,F6,Chillies,Zone B - Amaravati Agricultural Belt,20.0,34.6,75.2,Capacitive FMCW 10cm Probe,88.2,CLOSED

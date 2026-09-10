@@ -1,16 +1,28 @@
 """
 FastAPI application entrypoint for AI + Quantum-Inspired Irrigation System.
 """
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database.db import init_db, SessionLocal
 from .seed.demo_data import seed_database
 from .api.endpoints import router as api_router
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    db = SessionLocal()
+    try:
+        seed_database(db)
+    finally:
+        db.close()
+    yield
+
 app = FastAPI(
     title="Quantum-Inspired Irrigation & Water Resource Allocation Optimization API",
     description="Intelligent decision-support system for Krishna-Godavari command areas",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -20,15 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.on_event("startup")
-def startup_event():
-    init_db()
-    db = SessionLocal()
-    try:
-        seed_database(db)
-    finally:
-        db.close()
 
 app.include_router(api_router, prefix="/api")
 

@@ -80,3 +80,4 @@ class AlertModel(Base):
     timestamp = Column(String, nullable=False)
     acknowledged = Column(Boolean, default=False)
     actionRequired = Column(String, nullable=True)
+    fieldId = Column(String, nullable=True)

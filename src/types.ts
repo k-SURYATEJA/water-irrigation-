@@ -163,4 +163,27 @@ export interface Alert {
   timestamp: string;
   acknowledged: boolean;
   actionRequired?: string;
+  fieldId?: string;
+}
+
+export interface AnalyticsData {
+  metrics: OptimizationMetrics;
+  cropAllocation: Array<{ crop: string; allocatedLiters: number; count: number }>;
+  fieldAllocationComparison: Array<{
+    fieldId: string;
+    crop: string;
+    optimizedWater: number;
+    baselineWater: number;
+    savedWater: number;
+    decision: IrrigationDecision;
+  }>;
+  sevenDayTrend: Array<{
+    day: string;
+    availableWater: number;
+    demand: number;
+    allocated: number;
+    saved: number;
+  }>;
+  quboConvergence: Array<{ iteration: number; energy: number; quantumFluctuation: number }>;
+  quboMatrixSummary: any;
 }

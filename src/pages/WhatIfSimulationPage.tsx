@@ -361,9 +361,10 @@ export const WhatIfSimulationPage: React.FC<WhatIfSimulationPageProps> = ({
                       {simResult.after.metrics.waterAllocated.toLocaleString()} L
                     </strong>
                     <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">
-                      {simResult.delta.waterDeltaLiters >= 0
-                        ? `+${simResult.delta.waterDeltaLiters} L`
-                        : `${simResult.delta.waterDeltaLiters} L`}
+                      {(() => {
+                        const delta = simResult.comparison?.waterAllocatedDelta ?? simResult.delta?.waterDeltaLiters ?? (simResult.after.metrics.waterAllocated - simResult.before.metrics.waterAllocated);
+                        return delta >= 0 ? `+${delta} L` : `${delta} L`;
+                      })()}
                     </span>
                   </div>
                 </div>

@@ -1,0 +1,4 @@
+pump_id,pump_model,power_rating_hp,energy_source,capacity_liters_per_hour,operating_cost_inr_per_hour,solar_active_hours,carbon_emissions_g_co2_per_kwh,status
+P1,Solar Submersible Pump #1 (PM-KUSUM Scheme),5.0,Solar PV (Off-Grid DC Controller),850,12.0,06:00 - 17:00 (Peak 09:00 - 14:00),0.0,Operational
+P2,High-Head Grid Electric Pump #2,10.0,APCPDCL 3-Phase Grid Connection,1300,32.0,N/A (Grid Dependent),420.0,Operational
+P3,Auxiliary Diesel Pump Station #3,8.0,High-Speed Diesel Backup,1000,48.0,N/A (Emergency Standby),750.0,Standby

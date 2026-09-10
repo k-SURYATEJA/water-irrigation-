@@ -45,8 +45,9 @@ def seed_database(db: Session):
     ]
 
     alerts = [
-        AlertModel(id="alt-1", severity="WARNING", title="Critically Low Soil Moisture in F1 & F6", message="Tomato (38%) and Chillies (34%) soil moisture levels have breached the 40% safety threshold.", source="Soil Moisture Telemetry", timestamp="10 mins ago", acknowledged=False, actionRequired="Prioritize for morning allocation in QUBO optimization."),
-        AlertModel(id="alt-2", severity="INFO", title="Expected Rainfall Over Zone B Lowlands", message="Rain radar indicates 28mm incoming precipitation with 65% probability over Field F2 (Paddy).", source="Agro-Meteorological Radar", timestamp="25 mins ago", acknowledged=False, actionRequired="Optimizer recommends delaying irrigation to save ~700L reservoir water."),
+        AlertModel(id="alt-1", severity="WARNING", title="Critically Low Soil Moisture in F1 & F6", message="Tomato (38%) and Chillies (34%) soil moisture levels have breached the 40% safety threshold.", source="Soil Moisture Telemetry", timestamp="10 mins ago", acknowledged=False, actionRequired="Prioritize for morning allocation in QUBO optimization.", fieldId="F1, F6"),
+        AlertModel(id="alt-2", severity="INFO", title="Expected Rainfall Over Zone B Lowlands", message="Rain radar indicates 28mm incoming precipitation with 65% probability over Field F2 (Paddy).", source="Agro-Meteorological Radar", timestamp="25 mins ago", acknowledged=False, actionRequired="Optimizer recommends delaying irrigation to save ~700L reservoir water.", fieldId="F2"),
+        AlertModel(id="alt-3", severity="INFO", title="Canal C3 Operating Near 60% Capacity", message="Rayanapadu Distributary current flow is 900 L/day (Max 1,500 L/day). Plenty of hydraulic headroom available.", source="Canal Flow Gauging Station", timestamp="1 hour ago", acknowledged=True, fieldId="C3"),
     ]
 
     db.add_all(fields)
@@ -56,3 +57,10 @@ def seed_database(db: Session):
     db.add_all(weather)
     db.add_all(alerts)
     db.commit()
+
+def reset_database(db: Session):
+    for model in [FieldModel, WaterResourceModel, CanalModel, PumpModel, WeatherDataModel, AlertModel]:
+        db.query(model).delete()
+    db.commit()
+    seed_database(db)
+

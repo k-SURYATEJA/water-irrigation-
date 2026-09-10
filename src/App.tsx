@@ -358,6 +358,7 @@ const AppContent: React.FC = () => {
       <HowItWorksModal
         isOpen={isHowItWorksOpen}
         onClose={() => setIsHowItWorksOpen(false)}
+        onStartUsing={() => setIsHowItWorksOpen(false)}
       />
 
       <GlossaryModal

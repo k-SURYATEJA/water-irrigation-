@@ -20,7 +20,7 @@ let latestOptimizationResult: OptimizationResult | null = null;
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
   app.use(express.json());
 
@@ -190,6 +190,7 @@ async function startServer() {
           timestamp: row.timestamp as string,
           acknowledged: Boolean(row.acknowledged),
           actionRequired: (row.actionRequired as string) || undefined,
+          fieldId: (row.fieldId as string) || undefined,
         });
       }
       stmt.free();
@@ -289,8 +290,18 @@ async function startServer() {
     try {
       const id = req.params.id;
       db.run(`DELETE FROM fields WHERE id=?`, [id]);
+      db.run(`DELETE FROM weather_data WHERE fieldId=?`, [id]);
+      
+      const canals = fetchCanalsFromDb();
+      for (const canal of canals) {
+        if (canal.connectedFields.includes(id)) {
+          const updatedConnected = canal.connectedFields.filter((f) => f !== id);
+          db.run(`UPDATE canals SET connectedFields=? WHERE id=?`, [JSON.stringify(updatedConnected), canal.id]);
+        }
+      }
+      
       saveDb(db);
-      res.json({ message: `Field ${id} deleted` });
+      res.json({ message: `Field ${id} deleted and associations cleaned` });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

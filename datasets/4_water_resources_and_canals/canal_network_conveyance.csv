@@ -1,0 +1,4 @@
+canal_id,canal_name,parent_source,design_discharge_cusecs,scaled_capacity_liters_per_day,current_flow_liters_per_day,conveyance_efficiency_pct,connected_parcels,reach_type
+C1,Krishna Main Canal 1 (East Delta),Prakasam Barrage (R1),7200,3500,2100,82,"F1 (Tomato), F3 (Groundnut)",Head to Middle Reach
+C2,Godavari Eastern Canal 2,Sir Arthur Cotton Barrage (R2),5400,2500,1300,78,"F2 (Paddy), F6 (Chillies)",Middle to Tail Reach
+C3,Rayanapadu Distributary 3,Prakasam Barrage Western Link,2800,1500,900,74,"F4 (Cotton), F5 (Maize)",Tail-End Distributary (High Vulnerability)

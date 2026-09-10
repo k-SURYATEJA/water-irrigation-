@@ -85,3 +85,29 @@ class SimulationRequest(BaseModel):
     rainfallMultiplier: Optional[float] = 1.0
     cropDemandMultiplier: Optional[float] = 1.0
     canalCapacityMultiplier: Optional[float] = 1.0
+
+class FieldCreateOrUpdate(BaseModel):
+    id: Optional[str] = None
+    name: str
+    location: Optional[str] = "Krishna-Godavari Command Area"
+    zone: Optional[str] = "Zone A"
+    areaHectares: float = 2.0
+    crop: str
+    cropGrowthStage: Optional[str] = "Vegetative"
+    cropWaterRequirementMm: Optional[float] = 5.0
+    currentSoilMoisture: Optional[float] = 50.0
+    soilType: Optional[str] = "Alluvial"
+    lastIrrigatedHoursAgo: Optional[int] = 24
+    priority: Optional[str] = "MEDIUM"
+    canalId: Optional[str] = "C1"
+    pumpId: Optional[str] = "P1"
+
+class WaterResourceUpdate(BaseModel):
+    currentStorageLiters: Optional[float] = None
+    availableIrrigationLiters: Optional[float] = None
+    expectedInflowLiters: Optional[float] = None
+    status: Optional[str] = None
+
+class AlertAcknowledgeRequest(BaseModel):
+    id: Optional[str] = None
+

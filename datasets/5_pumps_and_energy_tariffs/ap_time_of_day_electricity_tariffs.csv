@@ -1,0 +1,5 @@
+slot_id,time_window,tariff_category,cost_multiplier,grid_tariff_inr_per_kwh,solar_availability_pct,evaporative_loss_level
+S1,06:00 - 08:00,Morning Solar Ramp-Up,0.8,2.5,75,Low (Optimal for root absorption)
+S2,08:00 - 10:00,Mid-Morning High Solar,1.0,3.2,100,Moderate
+S3,10:00 - 12:00,Peak Solar / Elevated Evaporation,1.3,4.8,100,High (Thermal loss penalty applied in QUBO)
+S4,16:00 - 18:00,Evening Twilight Off-Peak,1.1,3.8,25,Low (Low ambient temperature)

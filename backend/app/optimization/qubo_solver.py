@@ -40,8 +40,7 @@ class QuantumInspiredQUBOSolver:
         self.N = len(fields)
         self.T = len(TIME_SLOTS)
         self.total_vars = self.N * self.T
-        
-        # Penalties
+        self.iterations = iterations if iterations else max(250, self.total_vars * 12)
         self.lambda_conflict = 120.0
         self.lambda_water_budget = 0.08
         self.lambda_canal = 0.12
@@ -164,3 +163,28 @@ class QuantumInspiredQUBOSolver:
                 })
 
         return best_state, best_energy, convergence_history
+
+    def get_summary(self) -> Dict[str, Any]:
+        couplings = []
+        coupling_count = 0
+        for i in range(self.total_vars):
+            for j in range(i, self.total_vars):
+                val = self.Q[i][j]
+                if abs(val) > 0.001:
+                    coupling_count += 1
+                    if len(couplings) < 6:
+                        couplings.append({
+                            "i": i,
+                            "j": j,
+                            "coefficient": round(val, 2),
+                            "type": "Linear bias" if i == j else "Quadratic coupling"
+                        })
+        return {
+            "variableCount": self.total_vars,
+            "termsCount": coupling_count,
+            "penaltyWaterBudget": self.lambda_water_budget,
+            "penaltyUnmetDemand": self.lambda_conflict,
+            "penaltyCanalCapacity": self.lambda_canal,
+            "sampleCouplings": couplings
+        }
+

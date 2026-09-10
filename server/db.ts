@@ -188,6 +188,7 @@ export const DEFAULT_ALERTS: Alert[] = [
     timestamp: '10 mins ago',
     acknowledged: false,
     actionRequired: 'Prioritize for immediate morning allocation in QUBO optimization.',
+    fieldId: 'F1, F6',
   },
   {
     id: 'alt-2',
@@ -198,6 +199,7 @@ export const DEFAULT_ALERTS: Alert[] = [
     timestamp: '25 mins ago',
     acknowledged: false,
     actionRequired: 'Optimizer recommends delaying irrigation to save ~700L reservoir water.',
+    fieldId: 'F2',
   },
   {
     id: 'alt-3',
@@ -207,6 +209,7 @@ export const DEFAULT_ALERTS: Alert[] = [
     source: 'Canal Flow Gauging Station',
     timestamp: '1 hour ago',
     acknowledged: true,
+    fieldId: 'C3',
   },
 ];
 
@@ -311,7 +314,8 @@ function initTables(db: Database) {
       source TEXT NOT NULL,
       timestamp TEXT NOT NULL,
       acknowledged INTEGER NOT NULL,
-      actionRequired TEXT
+      actionRequired TEXT,
+      fieldId TEXT
     );
 
     CREATE TABLE IF NOT EXISTS optimization_runs (
@@ -367,8 +371,8 @@ function seedInitialData(db: Database) {
   // Insert alerts
   for (const a of DEFAULT_ALERTS) {
     db.run(
-      `INSERT OR REPLACE INTO alerts VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [a.id, a.severity, a.title, a.message, a.source, a.timestamp, a.acknowledged ? 1 : 0, a.actionRequired || '']
+      `INSERT OR REPLACE INTO alerts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [a.id, a.severity, a.title, a.message, a.source, a.timestamp, a.acknowledged ? 1 : 0, a.actionRequired || '', a.fieldId || '']
     );
   }
 }

@@ -1,0 +1,3 @@
+facility_id,facility_name,river_basin,location,full_reservoir_level_m,gross_storage_capacity_tmc,live_capacity_liters_scaled,current_storage_liters_scaled,minimum_environmental_storage_liters,ayacut_command_area_acres,major_canals_fed,status
+R1,Prakasam Barrage Primary Head,Krishna River Basin,"Vijayawada, Andhra Pradesh (16.5062° N, 80.6056° E)",17.37,3.071,15000,11250,3000,1308000,"Krishna Eastern Main Canal, Krishna Western Main Canal, Ryves Canal",Adequate
+R2,Sir Arthur Cotton Barrage Head Tank B,Godavari River Basin,"Dowleswaram / Rajahmundry (16.9400° N, 81.7690° E)",13.64,2.93,10000,7500,2000,1010000,"Eastern Delta Canal, Central Delta Canal, Western Delta Canal",Adequate
