@@ -461,7 +461,7 @@ async function startServer() {
       // Generate dynamic alert if severe shortage
       if (simulatedResult.metrics.waterShortage > 500) {
         db.run(
-          `INSERT OR REPLACE INTO alerts VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT OR REPLACE INTO alerts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             `sim-${Date.now()}`,
             'CRITICAL',
@@ -471,8 +471,10 @@ async function startServer() {
             'Just now',
             0,
             'Implement rotational canal rationing across Krishna-Godavari branches.',
+            '',
           ]
         );
+
         saveDb(db);
       }
 

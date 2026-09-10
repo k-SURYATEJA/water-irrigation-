@@ -98,22 +98,23 @@ class QuantumInspiredQUBOSolver:
 
         # Quadratic penalty for exceeding available reservoir water
         if allocated_water > self.total_available_water:
-            excess = allocated_water - self.total_available_water
-            energy += self.lambda_water_budget * (excess ** 2)
+            excess = (allocated_water - self.total_available_water) / 50.0
+            energy += self.lambda_water_budget * (excess ** 2) * 50.0
 
-        # Canal capacity constraints per time slot
+        # Canal capacity constraints per time slot (prevents concurrent overdrawing on shared canals)
         for t in range(self.T):
             for canal in self.canals:
-                slot_cap = (canal.get("capacityLitersPerDay", 2000.0)) / 2.5
+                slot_cap = (canal.get("capacityLitersPerDay", 2000.0)) * 0.88
                 canal_flow = 0.0
                 for i in range(self.N):
                     if self.fields[i].get("canalId") == canal["id"] and state[self._var_idx(i, t)] == 1:
                         canal_flow += self.demands[i]["recommendedAmountLiters"]
                 if canal_flow > slot_cap:
-                    excess_canal = canal_flow - slot_cap
-                    energy += self.lambda_canal * (excess_canal ** 2)
+                    excess_canal = (canal_flow - slot_cap) / 50.0
+                    energy += self.lambda_canal * (excess_canal ** 2) * 50.0
 
         return energy
+
 
     def solve(self) -> Tuple[List[int], float, List[Dict[str, Any]]]:
         """

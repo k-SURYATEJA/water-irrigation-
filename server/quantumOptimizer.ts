@@ -174,15 +174,15 @@ export function runQuantumOptimization(
 
     // Quadratic penalty if exceeding available water
     if (allocatedTotal > totalAvailableWater) {
-      const excess = allocatedTotal - totalAvailableWater;
-      energy += LAMBDA_WATER_BUDGET * excess * excess;
+      const excess = (allocatedTotal - totalAvailableWater) / 50;
+      energy += LAMBDA_WATER_BUDGET * excess * excess * 50;
     }
 
-    // Canal capacity penalty per slot
+    // Canal capacity penalty per slot (prevents concurrent overdrawing on shared canals)
     for (let t = 0; t < T; t++) {
       for (const canal of canals) {
         const canalDailyCap = canal.capacityLitersPerDay * canalCapacityMultiplier;
-        const slotCap = canalDailyCap / 2.5; // per 2-hour slot budget
+        const slotCap = canalDailyCap * 0.88; // Slot capacity allows single field delivery but prevents concurrent bottleneck
         let canalSlotFlow = 0;
 
         for (let i = 0; i < N; i++) {
@@ -192,13 +192,14 @@ export function runQuantumOptimization(
         }
 
         if (canalSlotFlow > slotCap) {
-          const excessCanal = canalSlotFlow - slotCap;
-          energy += LAMBDA_CANAL * excessCanal * excessCanal;
+          const excessCanal = (canalSlotFlow - slotCap) / 50;
+          energy += LAMBDA_CANAL * excessCanal * excessCanal * 50;
         }
       }
     }
 
     return energy;
+
   }
 
   const convergenceHistory: Array<{ iteration: number; energy: number; quantumFluctuation: number }> = [];

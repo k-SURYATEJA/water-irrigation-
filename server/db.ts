@@ -222,11 +222,14 @@ export async function getDb(): Promise<Database> {
     try {
       const fileBuffer = fs.readFileSync(DB_FILE_PATH);
       dbInstance = new SQL.Database(fileBuffer);
+      initTables(dbInstance);
+      saveDb(dbInstance);
       return dbInstance;
     } catch {
       console.warn('Failed to load existing SQLite file, recreating clean DB');
     }
   }
+
 
   dbInstance = new SQL.Database();
   initTables(dbInstance);
@@ -324,7 +327,14 @@ function initTables(db: Database) {
       resultJson TEXT NOT NULL
     );
   `);
+
+  try {
+    db.run(`ALTER TABLE alerts ADD COLUMN fieldId TEXT;`);
+  } catch {
+    // Column already exists
+  }
 }
+
 
 function seedInitialData(db: Database) {
   // Insert fields
@@ -378,7 +388,9 @@ function seedInitialData(db: Database) {
 }
 
 export function resetToDefaults(db: Database) {
+  initTables(db);
   db.run(`DELETE FROM fields`);
+
   db.run(`DELETE FROM water_resources`);
   db.run(`DELETE FROM canals`);
   db.run(`DELETE FROM pumps`);
