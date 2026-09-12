@@ -688,10 +688,17 @@ async function startServer() {
   // ===================== VITE & STATIC SERVING =====================
 
   if (process.env.NODE_ENV !== 'production') {
+    const isHostedPreview = Boolean(process.env.APP_URL);
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
-        hmr: process.env.DISABLE_HMR === 'true' ? false : { server: httpServer },
+        // Hosted previews do not proxy the custom server's WebSocket upgrade.
+        // Disable Vite HMR there to prevent the client from retrying a socket
+        // that can never open; local development keeps full HMR support.
+        hmr:
+          process.env.DISABLE_HMR === 'true' || isHostedPreview
+            ? false
+            : { server: httpServer },
       },
       appType: 'spa',
     });
