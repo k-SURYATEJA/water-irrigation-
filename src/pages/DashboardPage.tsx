@@ -163,10 +163,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   ];
 
   return (
-    <div className="p-6 space-y-5 max-w-7xl mx-auto">
+    <div className="min-h-full bg-slate-50/80 px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6">
 
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-cyan-950 to-slate-900 rounded-2xl p-5 text-white shadow-xl border border-cyan-900/50">
+      <section className="rounded-2xl border border-cyan-900/50 bg-gradient-to-r from-slate-900 via-cyan-950 to-slate-900 p-5 text-white shadow-xl" aria-labelledby="dashboard-overview-title">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -177,7 +178,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 Live Field Sensors
               </span>
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-white">
+            <h1 id="dashboard-overview-title" className="text-xl font-bold tracking-tight text-white text-balance">
               {isSimple ? 'Smart Water & Electricity Optimization' : 'AI + Quantum-Inspired Irrigation Dispatch'}
             </h1>
             <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
@@ -235,10 +236,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <section aria-labelledby="dashboard-metrics-title" className="flex flex-col gap-3">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-700">At a glance</p>
+            <h2 id="dashboard-metrics-title" className="text-lg font-bold tracking-tight text-slate-900">Today&apos;s water operations</h2>
+          </div>
+          <p className="hidden text-xs text-slate-500 sm:block">Live readings and latest optimization</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         {kpiCards.map((card, i) => (
           <div
             key={i}
@@ -254,7 +262,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="dashboard-action-title" className="flex flex-col gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-700">Recommended next step</p>
+          <h2 id="dashboard-action-title" className="text-lg font-bold tracking-tight text-slate-900">Irrigation plan and water levels</h2>
+        </div>
 
       {/* Decision Card + Reservoir */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -441,9 +456,19 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
         </div>
       </div>
+      </section>
+
+      <section aria-labelledby="dashboard-analytics-title" className="flex flex-col gap-3">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-700">Trends and allocation</p>
+            <h2 id="dashboard-analytics-title" className="text-lg font-bold tracking-tight text-slate-900">Performance analytics</h2>
+          </div>
+          <p className="hidden text-xs text-slate-500 sm:block">Use these views to spot savings and imbalances</p>
+        </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Chart 1: Water Balance */}
         <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
           <div className="flex justify-between items-center mb-3">
@@ -562,6 +587,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             )}
           </div>
         </div>
+      </div>
+      </section>
       </div>
     </div>
   );
